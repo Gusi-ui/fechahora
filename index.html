@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📅 Planificador de Horarios</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 300;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .controls {
+      padding: 2rem;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-group label {
+      font-weight: 600;
+      color: #495057;
+    }
+
+    select, input {
+      padding: 0.75rem 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: #4facfe;
+      box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      padding: 1rem 2rem;
+      background: #f8f9fa;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #4facfe;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .table-container {
+      padding: 2rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    th {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover {
+      background: #f8f9fa;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #6c757d;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4facfe;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      border: 1px solid #f5c6cb;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 3rem;
+      color: #6c757d;
+    }
+
+    .no-data svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📅 Planificador de Horarios</h1>
+      <p>Gestiona y visualiza tu planificación de trabajo de manera eficiente</p>
+    </div>
+
+    <div class="controls">
+      <div class="filter-group">
+        <label for="month">Mes:</label>
+        <select id="month">
+          <option value="">Todos los meses</option>
+          <option value="enero">Enero</option>
+          <option value="febrero">Febrero</option>
+          <option value="marzo">Marzo</option>
+          <option value="abril">Abril</option>
+          <option value="mayo">Mayo</option>
+          <option value="junio">Junio</option>
+          <option value="julio">Julio</option>
+          <option value="agosto">Agosto</option>
+          <option value="septiembre">Septiembre</option>
+          <option value="octubre">Octubre</option>
+          <option value="noviembre">Noviembre</option>
+          <option value="diciembre">Diciembre</option>
+        </select>
+
+        <label for="search">Buscar:</label>
+        <input type="text" id="search" placeholder="Buscar por nombre, fecha o horas...">
+
+        <button class="btn" onclick="exportToCSV()">📥 Exportar CSV</button>
+        <button class="btn" onclick="resetFilters()">🔄 Limpiar filtros</button>
+      </div>
+    </div>
+
+    <div class="stats" id="stats" style="display: none;">
+      <div class="stat-card">
+        <div class="stat-number" id="total-records">0</div>
+        <div class="stat-label">Total de registros</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="total-hours">0</div>
+        <div class="stat-label">Total de horas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="unique-names">0</div>
+        <div class="stat-label">Personas únicas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="date-range">-</div>
+        <div class="stat-label">Rango de fechas</div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Cargando datos...</p>
+      </div>
+      
+      <div id="error" class="error" style="display: none;">
+        <strong>Error:</strong> No se pudieron cargar los datos. Verifica la conexión a internet y la URL del archivo.
+      </div>
+      
+      <div id="no-data" class="no-data" style="display: none;">
+        <svg fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+        </svg>
+        <h3>No hay datos para mostrar</h3>
+        <p>Intenta cambiar los filtros o verifica que el archivo de datos esté disponible.</p>
+      </div>
+      
+      <div id="table-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // Configuración
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLuEf4cRYyKggenNb8HUvsE8RaMRMVRwh4IKOK83xEBdL8j9DXrP1D8E23kccJ7LibGenpY37SFKqS/pub?output=csv";
+    
+    // Variables globales
+    let allData = [];
+    let filteredData = [];
+    let headers = [];
+
+    // Elementos del DOM
+    const loadingEl = document.getElementById('loading');
+    const errorEl = document.getElementById('error');
+    const noDataEl = document.getElementById('no-data');
+    const tableContainerEl = document.getElementById('table-container');
+    const statsEl = document.getElementById('stats');
+
+    async function fetchCSV() {
+      try {
+        const res = await fetch(csvUrl);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const text = await res.text();
+        return parseCSV(text);
+      } catch (error) {
+        console.error('Error fetching CSV:', error);
+        throw error;
+      }
+    }
+
+    function parseCSV(text) {
+      const rows = text.trim().split("\n").map(row => row.split(","));
+      const headers = rows[0];
+      const data = rows.slice(1).map(row => {
+        const obj = {};
+        headers.forEach((header, idx) => {
+          obj[header.trim().toLowerCase()] = row[idx]?.trim();
+        });
+        return obj;
+      });
+      return { headers, data };
+    }
+
+    function renderTable(headers, data) {
+      if (data.length === 0) {
+        noDataEl.style.display = 'block';
+        tableContainerEl.innerHTML = '';
+        return;
+      }
+
+      noDataEl.style.display = 'none';
+      
+      const table = document.createElement("table");
+      const thead = table.createTHead();
+      const headerRow = thead.insertRow();
+      
+      headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        headerRow.appendChild(th);
+      });
+
+      const tbody = table.createTBody();
+      data.forEach(row => {
+        const tr = tbody.insertRow();
+        headers.forEach(h => {
+          const td = tr.insertCell();
+          const value = row[h.trim().toLowerCase()] || "";
+          td.textContent = value;
+          
+          // Resaltar valores de horas
+          if (h.toLowerCase().includes('horas') && value) {
+            td.style.fontWeight = 'bold';
+            td.style.color = '#4facfe';
+          }
+        });
+      });
+
+      tableContainerEl.innerHTML = '';
+      tableContainerEl.appendChild(table);
+    }
+
+    function updateStats(data) {
+      if (data.length === 0) {
+        statsEl.style.display = 'none';
+        return;
+      }
+
+      statsEl.style.display = 'grid';
+      
+      // Total de registros
+      document.getElementById('total-records').textContent = data.length;
+      
+      // Total de horas (suma de valores numéricos en columna horas)
+      const totalHours = data.reduce((sum, row) => {
+        const horas = parseFloat(row.horas) || 0;
+        return sum + horas;
+      }, 0);
+      document.getElementById('total-hours').textContent = totalHours.toFixed(1);
+      
+      // Personas únicas
+      const uniqueNames = new Set(data.map(row => row.nombre).filter(Boolean));
+      document.getElementById('unique-names').textContent = uniqueNames.size;
+      
+      // Rango de fechas
+      const fechas = data.map(row => row.fecha).filter(Boolean);
+      if (fechas.length > 0) {
+        const fechasOrdenadas = fechas.sort();
+        const rango = `${fechasOrdenadas[0]} - ${fechasOrdenadas[fechasOrdenadas.length - 1]}`;
+        document.getElementById('date-range').textContent = rango;
+      }
+    }
+
+    function filterData() {
+      const month = document.getElementById("month").value.toLowerCase();
+      const search = document.getElementById("search").value.toLowerCase();
+      
+      filteredData = allData.filter(row => {
+        const fecha = (row.fecha || "").toLowerCase();
+        const nombre = (row.nombre || "").toLowerCase();
+        const horas = (row.horas || "").toLowerCase();
+        
+        const matchesMonth = !month || fecha.includes(month);
+        const matchesSearch = !search || 
+          fecha.includes(search) || 
+          nombre.includes(search) || 
+          horas.includes(search);
+        
+        return matchesMonth && matchesSearch;
+      });
+      
+      renderTable(headers, filteredData);
+      updateStats(filteredData);
+    }
+
+    function exportToCSV() {
+      if (filteredData.length === 0) {
+        alert('No hay datos para exportar');
+        return;
+      }
+      
+      const csvContent = [
+        headers.join(','),
+        ...filteredData.map(row => 
+          headers.map(h => {
+            const value = row[h.trim().toLowerCase()] || "";
+            return `"${value}"`;
+          }).join(',')
+        )
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `planificacion_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function resetFilters() {
+      document.getElementById("month").value = "";
+      document.getElementById("search").value = "";
+      filteredData = [...allData];
+      renderTable(headers, filteredData);
+      updateStats(filteredData);
+    }
+
+    async function initializeApp() {
+      try {
+        loadingEl.style.display = 'block';
+        errorEl.style.display = 'none';
+        noDataEl.style.display = 'none';
+        
+        const { headers: csvHeaders, data } = await fetchCSV();
+        headers = csvHeaders;
+        allData = data;
+        filteredData = [...data];
+        
+        renderTable(headers, filteredData);
+        updateStats(filteredData);
+        
+        loadingEl.style.display = 'none';
+      } catch (error) {
+        loadingEl.style.display = 'none';
+        errorEl.style.display = 'block';
+        console.error('Error initializing app:', error);
+      }
+    }
+
+    // Event listeners
+    document.getElementById("month").addEventListener("change", filterData);
+    document.getElementById("search").addEventListener("input", filterData);
+
+    // Inicializar la aplicación
+    initializeApp();
+  </script>
+</body>
+</html>
