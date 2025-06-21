@@ -106,6 +106,83 @@
       box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
     }
 
+    .calculation-settings {
+        padding: 1.5rem 2rem;
+        background: #e9ecef;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .toggle-group {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+        justify-content: space-between;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #28a745;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #28a745;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+    .main-action {
+        padding: 2rem;
+        padding-top: 0;
+        background: #f8f9fa;
+    }
+
     .results-container {
         padding: 2rem;
     }
@@ -232,6 +309,27 @@
           <option value="11">Diciembre</option>
         </select>
       </div>
+    </div>
+
+    <div class="calculation-settings">
+        <div class="input-group">
+            <label for="hoursWeekday">Horas / día laborable:</label>
+            <input type="number" id="hoursWeekday" value="3.5" step="0.5">
+        </div>
+        <div class="input-group">
+            <label for="hoursOffday">Horas / día festivo o fin de semana:</label>
+            <input type="number" id="hoursOffday" value="1.5" step="0.5">
+        </div>
+        <div class="input-group toggle-group">
+            <label for="includeOffdays">Contabilizar fines de semana y festivos:</label>
+            <label class="switch">
+                <input type="checkbox" id="includeOffdays" checked>
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="main-action">
       <button class="btn" id="calculateBtn">Calcular Balance</button>
     </div>
 
@@ -271,8 +369,6 @@
 
 <script>
 // --- CONFIGURACIÓN ---
-const HOURS_WEEKDAY = 3.5;
-const HOURS_OFFDAY = 1.5;
 const HOLIDAYS_URL = './data/holidays.json';
 
 // --- ESTADO DE LA APLICACIÓN ---
@@ -286,6 +382,11 @@ const calculateBtn = document.getElementById('calculateBtn');
 const resultsContainer = document.getElementById('results-container');
 const loadingEl = document.getElementById('loading');
 const errorContainer = document.getElementById('error-container');
+
+// Nuevos elementos de configuración
+const hoursWeekdayInput = document.getElementById('hoursWeekday');
+const hoursOffdayInput = document.getElementById('hoursOffday');
+const includeOffdaysToggle = document.getElementById('includeOffdays');
 
 // --- FUNCIONES ---
 
@@ -333,9 +434,18 @@ function isHoliday(date, holidayList) {
  * Realiza el cálculo del balance de horas y actualiza la UI.
  */
 function calculateBalance() {
+    // Leer valores de configuración en cada cálculo
+    const hoursWeekday = parseFloat(hoursWeekdayInput.value);
+    const hoursOffday = parseFloat(hoursOffdayInput.value);
+    const includeOffdays = includeOffdaysToggle.checked;
+
     const totalAssignedHours = parseFloat(totalHoursInput.value);
     if (isNaN(totalAssignedHours) || totalAssignedHours <= 0) {
         alert('Por favor, introduce un número válido y positivo para las horas asignadas.');
+        return;
+    }
+    if (isNaN(hoursWeekday) || isNaN(hoursOffday)) {
+        alert('Por favor, introduce valores numéricos para las horas.');
         return;
     }
 
@@ -352,11 +462,15 @@ function calculateBalance() {
         const currentDate = new Date(year, month, day);
         const dayOfWeek = currentDate.getDay(); // 0=Domingo, 6=Sábado
 
-        if (isHoliday(currentDate, holidays) || dayOfWeek === 0 || dayOfWeek === 6) {
-            consumed += HOURS_OFFDAY;
+        const isOffDay = isHoliday(currentDate, holidays) || dayOfWeek === 0 || dayOfWeek === 6;
+
+        if (isOffDay) {
+            if (includeOffdays) {
+                consumed += hoursOffday;
+            }
             offDaysCount++;
         } else {
-            consumed += HOURS_WEEKDAY;
+            consumed += hoursWeekday;
             workdaysCount++;
         }
     }
@@ -366,8 +480,8 @@ function calculateBalance() {
     // Actualizar UI con los resultados
     document.getElementById('assignedHours').textContent = `${totalAssignedHours.toFixed(2)} h`;
     document.getElementById('consumedHours').textContent = `${consumed.toFixed(2)} h`;
-    document.getElementById('workdays').textContent = `${workdaysCount} (x${HOURS_WEEKDAY}h)`;
-    document.getElementById('offDays').textContent = `${offDaysCount} (x${HOURS_OFFDAY}h)`;
+    document.getElementById('workdays').textContent = `${workdaysCount} (x${hoursWeekday}h)`;
+    document.getElementById('offDays').textContent = `${offDaysCount} ${includeOffdays ? `(x${hoursOffday}h)`: '(0h)'}`;
     
     const balanceValueEl = document.getElementById('balanceValue');
     const balanceTextEl = document.getElementById('balanceText');
@@ -412,6 +526,15 @@ async function initializeApp() {
 
 // --- EVENT LISTENERS ---
 calculateBtn.addEventListener('click', calculateBalance);
+
+// Recalcular cuando cambien los valores
+totalHoursInput.addEventListener('input', calculateBalance);
+yearSelect.addEventListener('change', calculateBalance);
+monthSelect.addEventListener('change', calculateBalance);
+hoursWeekdayInput.addEventListener('input', calculateBalance);
+hoursOffdayInput.addEventListener('input', calculateBalance);
+includeOffdaysToggle.addEventListener('change', calculateBalance);
+
 document.addEventListener('DOMContentLoaded', initializeApp);
 
 </script>
