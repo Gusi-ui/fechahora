@@ -9,10 +9,10 @@ description = "Una herramienta completa para gestionar y visualizar planificacio
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Tu Nombre", email = "tu.email@ejemplo.com"}
+    {name = "Gusi-ui", email = "gusi.ui@example.com"}
 ]
 maintainers = [
-    {name = "Tu Nombre", email = "tu.email@ejemplo.com"}
+    {name = "Gusi-ui", email = "gusi.ui@example.com"}
 ]
 keywords = ["planificacion", "horarios", "trabajo", "excel", "csv", "json", "web"]
 classifiers = [
@@ -47,10 +47,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/tuusuario/fechahora"
-Documentation = "https://github.com/tuusuario/fechahora#readme"
-Repository = "https://github.com/tuusuario/fechahora"
-"Bug Tracker" = "https://github.com/tuusuario/fechahora/issues"
+Homepage = "https://github.com/Gusi-ui/fechahora"
+Documentation = "https://github.com/Gusi-ui/fechahora#readme"
+Repository = "https://github.com/Gusi-ui/fechahora"
+"Bug Tracker" = "https://github.com/Gusi-ui/fechahora/issues"
 
 [project.scripts]
 limpiar-planificacion = "limpiar_planing:main"

@@ -187,7 +187,7 @@ show_final_info() {
     echo "   pip install -e .[dev]  # Instalar dependencias de desarrollo"
     echo ""
     echo "📚 Documentación: README.md"
-    echo "🐛 Reportar bugs: https://github.com/tuusuario/fechahora/issues"
+    echo "🐛 Reportar bugs: https://github.com/Gusi-ui/fechahora/issues"
     echo ""
 }
 

@@ -8,7 +8,7 @@
 
 Si encuentras un bug, por favor:
 
-1. Busca en los [Issues existentes](https://github.com/tuusuario/fechahora/issues) para ver si ya fue reportado
+1. Busca en los [Issues existentes](https://github.com/Gusi-ui/fechahora/issues) para ver si ya fue reportado
 2. Si no existe, crea un nuevo Issue con:
    - Título descriptivo
    - Descripción detallada del problema
@@ -20,7 +20,7 @@ Si encuentras un bug, por favor:
 
 Para solicitar nuevas funcionalidades:
 
-1. Busca en los [Issues existentes](https://github.com/tuusuario/fechahora/issues) para ver si ya fue solicitada
+1. Busca en los [Issues existentes](https://github.com/Gusi-ui/fechahora/issues) para ver si ya fue solicitada
 2. Crea un nuevo Issue con:
    - Título descriptivo
    - Descripción detallada de la funcionalidad
@@ -170,7 +170,7 @@ Algunas áreas donde puedes contribuir:
 
 Si tienes preguntas sobre cómo contribuir:
 
-1. Revisa los [Issues existentes](https://github.com/tuusuario/fechahora/issues)
+1. Revisa los [Issues existentes](https://github.com/Gusi-ui/fechahora/issues)
 2. Crea un nuevo Issue con la etiqueta `question`
 3. Contacta directamente al mantenedor
 

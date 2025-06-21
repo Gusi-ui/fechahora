@@ -5,7 +5,7 @@ Script para limpiar y procesar archivos de planificación de horarios.
 Este script toma un archivo CSV de planificación y lo convierte en formatos
 más manejables para su uso en aplicaciones web y análisis de datos.
 
-Autor: Tu Nombre
+Autor: Gusi-ui
 Fecha: 2024
 """
 

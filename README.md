@@ -2,10 +2,10 @@
 
 [![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub stars](https://img.shields.io/github/stars/tuusuario/fechahora.svg)](https://github.com/tuusuario/fechahora/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/tuusuario/fechahora.svg)](https://github.com/tuusuario/fechahora/network)
-[![GitHub issues](https://img.shields.io/github/issues/tuusuario/fechahora.svg)](https://github.com/tuusuario/fechahora/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/tuusuario/fechahora.svg)](https://github.com/tuusuario/fechahora/pulls)
+[![GitHub stars](https://img.shields.io/github/stars/Gusi-ui/fechahora.svg)](https://github.com/Gusi-ui/fechahora/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Gusi-ui/fechahora.svg)](https://github.com/Gusi-ui/fechahora/network)
+[![GitHub issues](https://img.shields.io/github/issues/Gusi-ui/fechahora.svg)](https://github.com/Gusi-ui/fechahora/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/Gusi-ui/fechahora.svg)](https://github.com/Gusi-ui/fechahora/pulls)
 
 Una herramienta completa para gestionar y visualizar planificaciones de horarios de trabajo. Este proyecto incluye un script de limpieza de datos y una interfaz web para filtrar y visualizar la planificación por mes.
 
@@ -27,7 +27,7 @@ Una herramienta completa para gestionar y visualizar planificaciones de horarios
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tuusuario/fechahora.git
+git clone https://github.com/Gusi-ui/fechahora.git
 cd fechahora
 
 # Ejecutar script de instalación
@@ -45,7 +45,7 @@ cd fechahora
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tuusuario/fechahora.git
+git clone https://github.com/Gusi-ui/fechahora.git
 cd fechahora
 
 # Crear entorno virtual
@@ -197,7 +197,7 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ## 👨‍💻 Autor
 
-**Tu Nombre** - [@tuusuario](https://github.com/tuusuario)
+**Gusi-ui** - [@Gusi-ui](https://github.com/Gusi-ui)
 
 ## 🙏 Agradecimientos
 
@@ -210,7 +210,7 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 Si tienes alguna pregunta o problema, por favor:
 
-1. Revisa los [Issues](https://github.com/tuusuario/fechahora/issues) existentes
+1. Revisa los [Issues](https://github.com/Gusi-ui/fechahora/issues) existentes
 2. Crea un nuevo Issue si tu problema no está resuelto
 3. Contacta directamente si es necesario
 
@@ -230,9 +230,9 @@ Para desplegar manualmente:
 
 ## 📊 Estado del Proyecto
 
-![GitHub last commit](https://img.shields.io/github/last-commit/tuusuario/fechahora.svg)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/tuusuario/fechahora.svg)
-![GitHub contributors](https://img.shields.io/github/contributors/tuusuario/fechahora.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/Gusi-ui/fechahora.svg)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Gusi-ui/fechahora.svg)
+![GitHub contributors](https://img.shields.io/github/contributors/Gusi-ui/fechahora.svg)
 
 ---
 

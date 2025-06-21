@@ -19,12 +19,12 @@ def read_requirements():
 setup(
     name="planificador-horarios",
     version="1.0.0",
-    author="Tu Nombre",
-    author_email="tu.email@ejemplo.com",
+    author="Gusi-ui",
+    author_email="gusi.ui@example.com",
     description="Una herramienta completa para gestionar y visualizar planificaciones de horarios de trabajo",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/tuusuario/fechahora",
+    url="https://github.com/Gusi-ui/fechahora",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -64,8 +64,8 @@ setup(
     },
     keywords="planificacion horarios trabajo excel csv json web",
     project_urls={
-        "Bug Reports": "https://github.com/tuusuario/fechahora/issues",
-        "Source": "https://github.com/tuusuario/fechahora",
-        "Documentation": "https://github.com/tuusuario/fechahora#readme",
+        "Bug Reports": "https://github.com/Gusi-ui/fechahora/issues",
+        "Source": "https://github.com/Gusi-ui/fechahora",
+        "Documentation": "https://github.com/Gusi-ui/fechahora#readme",
     },
 ) 

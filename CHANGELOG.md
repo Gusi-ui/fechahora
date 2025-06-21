@@ -73,5 +73,5 @@ Los commits siguen el formato convencional:
 
 ### Enlaces
 
-- [Unreleased]: https://github.com/tuusuario/fechahora/compare/v1.0.0...HEAD
-- [1.0.0]: https://github.com/tuusuario/fechahora/releases/tag/v1.0.0 
+- [Unreleased]: https://github.com/Gusi-ui/fechahora/compare/v1.0.0...HEAD
+- [1.0.0]: https://github.com/Gusi-ui/fechahora/releases/tag/v1.0.0 
