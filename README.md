@@ -236,4 +236,4 @@ Para desplegar manualmente:
 
 ---
 
-⭐ Si este proyecto te ha sido útil, ¡dale una estrella en GitHub! 
+⭐ Si este proyecto te ha sido útil, ¡dale una estrella en GitHub! # Sat Jun 21 18:27:46 CEST 2025
