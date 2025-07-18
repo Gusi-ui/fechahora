@@ -4,277 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Horas de Servicio</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 2rem;
-      color: #333;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .container {
-      max-width: 800px;
-      width: 100%;
-      margin: 0 auto;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      color: white;
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      font-weight: 300;
-    }
-
-    .header p {
-      font-size: 1.1rem;
-      opacity: 0.9;
-    }
-
-    .controls {
-      padding: 2rem;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      align-items: end;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    .input-group label {
-      font-weight: 600;
-      color: #495057;
-    }
-
-    select, input[type="number"] {
-      padding: 0.75rem 1rem;
-      border: 2px solid #e9ecef;
-      border-radius: 10px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: white;
-      width: 100%;
-    }
-
-    select:focus, input:focus {
-      outline: none;
-      border-color: #4facfe;
-      box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
-    }
-
-    .btn {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      height: fit-content;
-      grid-column: 1 / -1; /* Span full width on multi-column */
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
-    }
-
-    .calculation-settings {
-        padding: 1.5rem 2rem;
-        background: #e9ecef;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        align-items: center;
-    }
-
-    .toggle-group {
-        flex-direction: row;
-        align-items: center;
-        gap: 1rem;
-        justify-content: space-between;
-    }
-
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 34px;
-    }
-
-    .switch input { 
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .4s;
-    }
-
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 26px;
-        width: 26px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: .4s;
-    }
-
-    input:checked + .slider {
-        background-color: #28a745;
-    }
-
-    input:focus + .slider {
-        box-shadow: 0 0 1px #28a745;
-    }
-
-    input:checked + .slider:before {
-        transform: translateX(26px);
-    }
-
-    .slider.round {
-        border-radius: 34px;
-    }
-
-    .slider.round:before {
-        border-radius: 50%;
-    }
-
-    .main-action {
-        padding: 2rem;
-        padding-top: 0;
-        background: #f8f9fa;
-    }
-
-    .results-container {
-        padding: 2rem;
-    }
-    
-    .summary-card {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .summary-card h2 {
-        margin-bottom: 1rem;
-        color: #343a40;
-        font-weight: 600;
-    }
-
-    .balance-value {
-        font-size: 3rem;
-        font-weight: bold;
-    }
-
-    .balance-text {
-        font-size: 1.2rem;
-        color: #6c757d;
-        margin-top: 0.5rem;
-    }
-
-    .details-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .detail-card {
-        background: #f8f9fa;
-        padding: 1.5rem;
-        border-radius: 15px;
-        text-align: center;
-    }
-
-    .detail-card h3 {
-        font-size: 1rem;
-        color: #495057;
-        margin-bottom: 0.75rem;
-        font-weight: 600;
-    }
-    
-    .detail-card p {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #343a40;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: #6c757d;
-    }
-
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #4facfe;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1rem;
-    }
-    
-    .error-message {
-        background: #f8d7da;
-        color: #721c24;
-        padding: 1rem;
-        border-radius: 10px;
-        margin: 1rem 2rem;
-        border: 1px solid #f5c6cb;
-        text-align: center;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 768px) {
-        body { padding: 1rem; }
-        .header h1 { font-size: 2rem; }
-        .controls { grid-template-columns: 1fr; }
-    }
-  </style>
+  <link rel="stylesheet" href="css/sheet.css">
 </head>
 <body>
   <div class="container">
@@ -283,18 +13,14 @@
       <p>Calcula el balance de horas mensuales según tu plan.</p>
     </div>
 
-    <div class="controls">
-      <div class="input-group">
-        <label for="totalHours">Horas asignadas al mes:</label>
-        <input type="number" id="totalHours" value="86" step="0.5">
+    <div class="top-controls-v2">
+      <div class="styled-select-group">
+        <label for="year">Año</label>
+        <select id="year" class="styled-select"></select>
       </div>
-      <div class="input-group">
-        <label for="year">Año:</label>
-        <select id="year"></select>
-      </div>
-      <div class="input-group">
-        <label for="month">Mes:</label>
-        <select id="month">
+      <div class="styled-select-group">
+        <label for="month">Mes</label>
+        <select id="month" class="styled-select">
           <option value="0">Enero</option>
           <option value="1">Febrero</option>
           <option value="2">Marzo</option>
@@ -308,6 +34,10 @@
           <option value="10">Noviembre</option>
           <option value="11">Diciembre</option>
         </select>
+      </div>
+      <div class="assigned-hours-field">
+        <label for="totalHours">Horas asignadas al mes</label>
+        <input type="number" id="totalHours" value="86" step="0.5" class="assigned-hours-input-v2">
       </div>
     </div>
 
@@ -333,7 +63,7 @@
       <button class="btn" id="calculateBtn">Calcular Balance</button>
     </div>
 
-    <div id="loading" class="loading" style="display: none;">
+    <div id="loading" class="loading">
       <div class="spinner"></div>
       <p>Cargando datos de festivos...</p>
     </div>
@@ -348,195 +78,38 @@
       </div>
       <div class="details-grid">
         <div class="detail-card">
-          <h3>Horas Asignadas</h3>
-          <p id="assignedHours">--</p>
+          <h3 id="totalMonthHoursTitle">Horas para <span id="monthNameTitle">Julio</span> <span id="yearTitle">2025</span></h3>
+          <p id="totalMonthHours">--</p>
         </div>
         <div class="detail-card">
-          <h3>Horas Consumidas</h3>
-          <p id="consumedHours">--</p>
+          <h3>Horas realizadas hasta hoy</h3>
+          <p id="hoursSoFar">--</p>
         </div>
         <div class="detail-card">
-          <h3>Días Laborables</h3>
+          <h3>Días laborables</h3>
           <p id="workdays">--</p>
         </div>
         <div class="detail-card">
-          <h3>Fines de Semana / Festivos</h3>
+          <h3>Fines de semana / Festivos</h3>
           <p id="offDays">--</p>
         </div>
       </div>
     </div>
+
+    <!-- Botón y contenedor de festivos al final -->
+    <div class="results-container">
+      <button id="toggleHolidayListBtn" class="btn" type="button">Mostrar festivos</button>
+      <div id="holidayListContainer" class="holiday-list-container">
+        <h3>Festivos usados en el cálculo</h3>
+        <ul id="holidayList"></ul>
+        <form id="addHolidayForm" class="add-holiday-form">
+          <input type="date" id="customHolidayDate" required />
+          <input type="text" id="customHolidayName" placeholder="Nombre del festivo" required />
+          <button type="submit" class="btn">Añadir</button>
+        </form>
+      </div>
+    </div>
   </div>
-
-<script>
-// --- CONFIGURACIÓN ---
-const HOLIDAYS_URL = './data/holidays.json';
-
-// --- ESTADO DE LA APLICACIÓN ---
-let holidays = [];
-
-// --- ELEMENTOS DEL DOM ---
-const totalHoursInput = document.getElementById('totalHours');
-const yearSelect = document.getElementById('year');
-const monthSelect = document.getElementById('month');
-const calculateBtn = document.getElementById('calculateBtn');
-const resultsContainer = document.getElementById('results-container');
-const loadingEl = document.getElementById('loading');
-const errorContainer = document.getElementById('error-container');
-
-// Nuevos elementos de configuración
-const hoursWeekdayInput = document.getElementById('hoursWeekday');
-const hoursOffdayInput = document.getElementById('hoursOffday');
-const includeOffdaysToggle = document.getElementById('includeOffdays');
-
-// --- FUNCIONES ---
-
-/**
- * Muestra un mensaje de error en la UI.
- * @param {string} message - El mensaje de error a mostrar.
- */
-function displayError(message) {
-    errorContainer.innerHTML = `<p class="error-message">${message}</p>`;
-}
-
-/**
- * Carga los datos de los días festivos desde el archivo JSON.
- */
-async function loadHolidays() {
-    loadingEl.style.display = 'block';
-    errorContainer.innerHTML = '';
-    try {
-        const response = await fetch(HOLIDAYS_URL);
-        if (!response.ok) {
-            throw new Error(`Error de red: ${response.statusText}`);
-        }
-        const data = await response.json();
-        holidays = data.holidays.map(h => h.date);
-    } catch (error) {
-        console.error("No se pudieron cargar los datos de festivos:", error);
-        displayError('No se pudieron cargar los datos de festivos. Los cálculos pueden ser incorrectos.');
-    } finally {
-        loadingEl.style.display = 'none';
-    }
-}
-
-/**
- * Comprueba si una fecha es un día festivo.
- * @param {Date} date - La fecha a comprobar.
- * @param {string[]} holidayList - La lista de fechas festivas en formato "YYYY-MM-DD".
- * @returns {boolean} - True si es festivo, false en caso contrario.
- */
-function isHoliday(date, holidayList) {
-    const dateString = date.toISOString().split('T')[0];
-    return holidayList.includes(dateString);
-}
-
-/**
- * Realiza el cálculo del balance de horas y actualiza la UI.
- */
-function calculateBalance() {
-    // Leer valores de configuración en cada cálculo
-    const hoursWeekday = parseFloat(hoursWeekdayInput.value);
-    const hoursOffday = parseFloat(hoursOffdayInput.value);
-    const includeOffdays = includeOffdaysToggle.checked;
-
-    const totalAssignedHours = parseFloat(totalHoursInput.value);
-    if (isNaN(totalAssignedHours) || totalAssignedHours <= 0) {
-        alert('Por favor, introduce un número válido y positivo para las horas asignadas.');
-        return;
-    }
-    if (isNaN(hoursWeekday) || isNaN(hoursOffday)) {
-        alert('Por favor, introduce valores numéricos para las horas.');
-        return;
-    }
-
-    const year = parseInt(yearSelect.value);
-    const month = parseInt(monthSelect.value);
-
-    let consumed = 0;
-    let workdaysCount = 0;
-    let offDaysCount = 0;
-
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    for (let day = 1; day <= daysInMonth; day++) {
-        const currentDate = new Date(year, month, day);
-        const dayOfWeek = currentDate.getDay(); // 0=Domingo, 6=Sábado
-
-        const isOffDay = isHoliday(currentDate, holidays) || dayOfWeek === 0 || dayOfWeek === 6;
-
-        if (isOffDay) {
-            if (includeOffdays) {
-                consumed += hoursOffday;
-            }
-            offDaysCount++;
-        } else {
-            consumed += hoursWeekday;
-            workdaysCount++;
-        }
-    }
-
-    const balance = totalAssignedHours - consumed;
-
-    // Actualizar UI con los resultados
-    document.getElementById('assignedHours').textContent = `${totalAssignedHours.toFixed(2)} h`;
-    document.getElementById('consumedHours').textContent = `${consumed.toFixed(2)} h`;
-    document.getElementById('workdays').textContent = `${workdaysCount} (x${hoursWeekday}h)`;
-    document.getElementById('offDays').textContent = `${offDaysCount} ${includeOffdays ? `(x${hoursOffday}h)`: '(0h)'}`;
-    
-    const balanceValueEl = document.getElementById('balanceValue');
-    const balanceTextEl = document.getElementById('balanceText');
-    
-    balanceValueEl.textContent = `${balance.toFixed(2)} h`;
-    if (balance >= 0) {
-        balanceValueEl.style.color = '#28a745'; // Verde
-        balanceTextEl.textContent = 'Horas a tu favor este mes';
-    } else {
-        balanceValueEl.style.color = '#dc3545'; // Rojo
-        balanceTextEl.textContent = 'Horas en contra este mes';
-    }
-
-    resultsContainer.style.display = 'block';
-}
-
-/**
- * Rellena el selector de años dinámicamente.
- */
-function populateYearSelector() {
-    const currentYear = new Date().getFullYear();
-    for (let i = currentYear - 5; i <= currentYear + 5; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = i;
-        yearSelect.appendChild(option);
-    }
-}
-
-/**
- * Inicializa la aplicación.
- */
-async function initializeApp() {
-    populateYearSelector();
-    const now = new Date();
-    yearSelect.value = now.getFullYear();
-    monthSelect.value = now.getMonth();
-    
-    await loadHolidays();
-    calculateBalance(); // Realizar un cálculo inicial
-}
-
-// --- EVENT LISTENERS ---
-calculateBtn.addEventListener('click', calculateBalance);
-
-// Recalcular cuando cambien los valores
-totalHoursInput.addEventListener('input', calculateBalance);
-yearSelect.addEventListener('change', calculateBalance);
-monthSelect.addEventListener('change', calculateBalance);
-hoursWeekdayInput.addEventListener('input', calculateBalance);
-hoursOffdayInput.addEventListener('input', calculateBalance);
-includeOffdaysToggle.addEventListener('change', calculateBalance);
-
-document.addEventListener('DOMContentLoaded', initializeApp);
-
-</script>
+  <script src="main.js"></script>
 </body>
 </html>
