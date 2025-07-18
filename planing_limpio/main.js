@@ -18,8 +18,6 @@ const calculateBtn = document.getElementById("calculateBtn");
 const resultsContainer = document.getElementById("results-container");
 const loadingEl = document.getElementById("loading");
 const errorContainer = document.getElementById("error-container");
-const hoursWeekdayInput = document.getElementById("hoursWeekday");
-const hoursOffdayInput = document.getElementById("hoursOffday");
 const includeOffdaysToggle = document.getElementById("includeOffdays");
 const totalMonthHours = document.getElementById("totalMonthHours");
 const hoursSoFar = document.getElementById("hoursSoFar");
@@ -30,6 +28,7 @@ const workdaysEl = document.getElementById("workdays");
 const offDaysEl = document.getElementById("offDays");
 const balanceValueEl = document.getElementById("balanceValue");
 const balanceTextEl = document.getElementById("balanceText");
+const resetBtn = document.getElementById("resetBtn");
 
 // Festivos personalizados
 const holidayListEl = document.getElementById("holidayList");
@@ -38,6 +37,61 @@ const customHolidayDate = document.getElementById("customHolidayDate");
 const customHolidayName = document.getElementById("customHolidayName");
 const holidayListContainer = document.getElementById("holidayListContainer");
 const toggleHolidayListBtn = document.getElementById("toggleHolidayListBtn");
+
+// --- NUEVO: DÍAS DE LA SEMANA ---
+const weekdayIds = [
+  { key: 'mon', label: 'Lunes', jsDay: 1 },
+  { key: 'tue', label: 'Martes', jsDay: 2 },
+  { key: 'wed', label: 'Miércoles', jsDay: 3 },
+  { key: 'thu', label: 'Jueves', jsDay: 4 },
+  { key: 'fri', label: 'Viernes', jsDay: 5 },
+  { key: 'sat', label: 'Sábado', jsDay: 6 },
+  { key: 'sun', label: 'Domingo', jsDay: 0 },
+];
+const weekdaySwitches = {};
+const weekdayHoursInputs = {};
+const slimSelectInstances = {};
+weekdayIds.forEach(({ key }) => {
+  weekdaySwitches[key] = document.getElementById(`weekday-${key}`);
+  weekdayHoursInputs[key] = document.getElementById(`hours-${key}`);
+  weekdayHoursInputs[key].classList.add('slim-square');
+  // Mostrar/ocultar input de horas según el interruptor
+  weekdaySwitches[key].addEventListener('change', () => {
+    if (weekdaySwitches[key].checked) {
+      weekdayHoursInputs[key].style.display = '';
+      // Reinicializar SlimSelect si no existe
+      if (!slimSelectInstances[key]) {
+        slimSelectInstances[key] = new SlimSelect({ select: `#hours-${key}`, settings: { showSearch: false } });
+      }
+      weekdayHoursInputs[key].focus();
+    } else {
+      weekdayHoursInputs[key].style.display = 'none';
+      weekdayHoursInputs[key].value = '';
+    }
+    calculateBalance();
+  });
+  // Recalcular al cambiar horas
+  weekdayHoursInputs[key].addEventListener('change', calculateBalance);
+});
+
+const festivoHoursGroup = document.getElementById('festivo-hours-group');
+const festivoHoursInput = document.getElementById('hours-festivo');
+festivoHoursInput.classList.add('slim-square');
+
+// Mostrar/ocultar input de horas de festivo según el interruptor
+includeOffdaysToggle.addEventListener('change', () => {
+  if (includeOffdaysToggle.checked) {
+    festivoHoursGroup.style.display = '';
+    // Reinicializar SlimSelect si no existe
+    if (!slimSelectInstances['festivo']) {
+      slimSelectInstances['festivo'] = new SlimSelect({ select: '#hours-festivo', settings: { showSearch: false } });
+    }
+  } else {
+    festivoHoursGroup.style.display = 'none';
+    festivoHoursInput.value = '';
+  }
+  calculateBalance();
+});
 
 // Mostrar/ocultar lista de festivos
 let holidayListVisible = false;
@@ -77,21 +131,40 @@ function renderHolidayList() {
     ...customHolidays.map((d) => ({ ...d, type: "Personalizado" })),
   ];
   all.sort((a, b) => a.date.localeCompare(b.date));
+  const today = new Date().toISOString().split('T')[0];
   for (const h of all) {
-    const li = document.createElement("li");
-    li.textContent = `${h.date} - ${h.name} (${h.type})`;
+    const card = document.createElement("div");
+    card.className = "festivo-card";
+    // Si la fecha ya ha pasado, atenuar
+    if (h.date < today) {
+      card.classList.add("festivo-pasado");
+    }
+    // Fecha
+    const fecha = document.createElement("div");
+    fecha.className = "festivo-fecha";
+    fecha.textContent = h.date;
+    card.appendChild(fecha);
+    // Nombre
+    const nombre = document.createElement("div");
+    nombre.className = "festivo-nombre";
+    nombre.textContent = h.name;
+    card.appendChild(nombre);
+    // Acción eliminar
     if (h.type === "Personalizado") {
+      const actions = document.createElement("div");
+      actions.className = "festivo-actions";
       const btn = document.createElement("button");
       btn.textContent = "Eliminar";
-      btn.style.marginLeft = "1rem";
+      btn.className = "btn btn-secondary";
       btn.onclick = () => {
         customHolidays = customHolidays.filter((ch) => ch.date !== h.date);
         saveCustomHolidays();
         updateHolidays();
       };
-      li.appendChild(btn);
+      actions.appendChild(btn);
+      card.appendChild(actions);
     }
-    holidayListEl.appendChild(li);
+    holidayListEl.appendChild(card);
   }
 }
 
@@ -207,19 +280,68 @@ function isHoliday(date, holidayList) {
   return holidayList.includes(dateString);
 }
 
+// --- Rellenar selects de horas ---
+function fillHourSelect(select, max, step) {
+  select.innerHTML = '<option value="">--</option>';
+  for (let h = step; h <= max; h += step) {
+    const value = h.toFixed(2).replace(/\.00$/, '');
+    let label = value;
+    // Etiqueta amigable: 0.25 = 15 min, 0.5 = 30 min, etc.
+    const intPart = Math.floor(h);
+    const minPart = Math.round((h - intPart) * 60);
+    if (intPart > 0 && minPart > 0) {
+      label = `${intPart}h ${minPart}min`;
+    } else if (intPart > 0) {
+      label = `${intPart}h`;
+    } else {
+      label = `${minPart}min`;
+    }
+    select.innerHTML += `<option value="${value}">${label}</option>`;
+  }
+}
+
 function calculateBalance() {
-  const hoursWeekday = parseFloat(hoursWeekdayInput.value);
-  const hoursOffday = parseFloat(hoursOffdayInput.value);
+  // Validar días de la semana personalizados
+  let atLeastOneDay = false;
+  let error = '';
+  const daysConfig = {};
+  weekdayIds.forEach(({ key, jsDay, label }) => {
+    if (weekdaySwitches[key].checked) {
+      atLeastOneDay = true;
+      const hours = parseFloat(weekdayHoursInputs[key].value);
+      if (isNaN(hours) || hours <= 0) {
+        error = `Selecciona las horas para ${label}`;
+      }
+      daysConfig[jsDay] = hours;
+    }
+  });
+  // Validar si hay servicio en festivos
   const includeOffdays = includeOffdaysToggle.checked;
-  const totalAssignedHours = parseFloat(assignedHoursInput.value);
-  if (isNaN(totalAssignedHours) || totalAssignedHours <= 0) {
-    balanceValueEl.textContent = "--";
-    balanceTextEl.textContent = "Introduce horas asignadas válidas";
+  let festivoHours = 0;
+  if (includeOffdays) {
+    festivoHours = parseFloat(festivoHoursInput.value);
+    if (isNaN(festivoHours) || festivoHours <= 0) {
+      error = 'Selecciona las horas para festivos';
+    }
+  }
+  if (!atLeastOneDay && !includeOffdays) {
+    balanceValueEl.textContent = '--';
+    balanceTextEl.textContent = 'Selecciona al menos un día de la semana o servicio en festivos';
+    resultsContainer.style.display = 'none';
     return;
   }
-  if (isNaN(hoursWeekday) || isNaN(hoursOffday)) {
-    balanceValueEl.textContent = "--";
-    balanceTextEl.textContent = "Introduce valores numéricos para las horas";
+  if (error) {
+    balanceValueEl.textContent = '--';
+    balanceTextEl.textContent = error;
+    resultsContainer.style.display = 'none';
+    return;
+  }
+  // Validar horas asignadas al mes
+  const totalAssignedHours = parseFloat(assignedHoursInput.value);
+  if (isNaN(totalAssignedHours) || totalAssignedHours <= 0) {
+    balanceValueEl.textContent = '--';
+    balanceTextEl.textContent = 'Selecciona las horas asignadas al mes';
+    resultsContainer.style.display = 'none';
     return;
   }
   const year = parseInt(yearSelect.value);
@@ -231,18 +353,18 @@ function calculateBalance() {
   for (let day = 1; day <= daysInMonth; day++) {
     const currentDate = new Date(year, month, day);
     const dayOfWeek = currentDate.getDay();
-    const isOffDay =
-      isHoliday(currentDate, holidays) || dayOfWeek === 0 || dayOfWeek === 6;
-    if (isOffDay) {
-      if (includeOffdays) {
-        consumed += hoursOffday;
-      }
+    const isHolidayDay = isHoliday(currentDate, holidays);
+    if (isHolidayDay && includeOffdays) {
+      consumed += festivoHours;
       offDaysCount++;
-    } else {
-      consumed += hoursWeekday;
+    } else if (!isHolidayDay && daysConfig.hasOwnProperty(dayOfWeek)) {
+      consumed += daysConfig[dayOfWeek];
       workdaysCount++;
+    } else if (isHolidayDay && !includeOffdays) {
+      offDaysCount++;
     }
   }
+  // Calcular balance
   const balance = totalAssignedHours - consumed;
   // Actualizar UI con los resultados
   totalMonthHours.textContent = `${consumed.toFixed(2)} h`;
@@ -256,45 +378,42 @@ function calculateBalance() {
   for (let day = 1; day <= today; day++) {
     const currentDate = new Date(year, month, day);
     const dayOfWeek = currentDate.getDay();
-    const isOffDay =
-      isHoliday(currentDate, holidays) || dayOfWeek === 0 || dayOfWeek === 6;
-    if (isOffDay) {
-      if (includeOffdays) {
-        consumedSoFar += hoursOffday;
-      }
-    } else {
-      consumedSoFar += hoursWeekday;
+    const isHolidayDay = isHoliday(currentDate, holidays);
+    if (isHolidayDay && includeOffdays) {
+      consumedSoFar += festivoHours;
+    } else if (!isHolidayDay && daysConfig.hasOwnProperty(dayOfWeek)) {
+      consumedSoFar += daysConfig[dayOfWeek];
     }
   }
   hoursSoFar.textContent = `${consumedSoFar.toFixed(2)} h`;
-  workdaysEl.textContent = `${workdaysCount} (x${hoursWeekday}h)`;
-  offDaysEl.textContent = `${offDaysCount} ${includeOffdays ? `(x${hoursOffday}h)` : "(0h)"}`;
+  workdaysEl.textContent = `${workdaysCount}`;
+  offDaysEl.textContent = `${offDaysCount}`;
   balanceValueEl.textContent = `${balance.toFixed(2)} h`;
   if (balance >= 0) {
-    balanceValueEl.style.color = "#28a745";
-    balanceTextEl.textContent = "Horas a tu favor este mes";
+    balanceValueEl.style.color = '#28a745';
+    balanceTextEl.textContent = 'Horas a tu favor este mes';
   } else {
-    balanceValueEl.style.color = "#dc3545";
-    balanceTextEl.textContent = "Horas en contra este mes";
+    balanceValueEl.style.color = '#dc3545';
+    balanceTextEl.textContent = 'Horas en contra este mes';
   }
   // Títulos dinámicos
   const monthNames = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre',
   ];
   monthNameTitle.textContent = monthNames[month];
   yearTitle.textContent = year;
-  resultsContainer.style.display = "block";
+  resultsContainer.style.display = 'block';
 }
 
 function populateYearSelector() {
@@ -338,8 +457,79 @@ yearSelect.addEventListener("change", async () => {
   showLoading(false);
 });
 monthSelect.addEventListener("change", calculateBalance);
-hoursWeekdayInput.addEventListener("input", calculateBalance);
-hoursOffdayInput.addEventListener("input", calculateBalance);
 includeOffdaysToggle.addEventListener("change", calculateBalance);
 
-document.addEventListener("DOMContentLoaded", initializeApp);
+// Guardar referencias a SlimSelect para año y mes
+let slimYear = null;
+let slimMonth = null;
+
+const mainForm = document.getElementById("mainForm");
+
+async function resetApp() {
+  // Limpiar localStorage
+  localStorage.removeItem(LOCAL_STORAGE_KEY);
+  localStorage.removeItem(MATARO_CACHE_KEY);
+  // Limpiar arrays en memoria
+  holidaysMataro = [];
+  customHolidays = [];
+  holidays = [];
+  // Rellenar el selector de año
+  populateYearSelector();
+  // Seleccionar año y mes actuales (asegurando que existen en el selector)
+  const now = new Date();
+  if ([...yearSelect.options].some(opt => opt.value == now.getFullYear())) {
+    yearSelect.value = now.getFullYear();
+  }
+  if ([...monthSelect.options].some(opt => opt.value == now.getMonth())) {
+    monthSelect.value = now.getMonth();
+  }
+  // Limpiar los campos de horas (poner a vacío)
+  assignedHoursInput.value = "";
+  // Checkbox activado por defecto
+  includeOffdaysToggle.checked = true;
+  includeOffdaysToggle.defaultChecked = true;
+  // Limpiar campos de festivos personalizados
+  if (customHolidayDate) customHolidayDate.value = "";
+  if (customHolidayName) customHolidayName.value = "";
+  // Limpiar días de la semana
+  weekdayIds.forEach(({ key }) => {
+    weekdaySwitches[key].checked = false;
+    weekdayHoursInputs[key].value = '';
+    weekdayHoursInputs[key].style.display = 'none';
+  });
+  // Limpiar campo de horas de festivo
+  festivoHoursInput.value = '';
+  festivoHoursGroup.style.display = includeOffdaysToggle.checked ? '' : 'none';
+  // Recargar festivos y refrescar UI
+  loadCustomHolidays();
+  showLoading(true);
+  errorContainer.innerHTML = "";
+  await loadMataroHolidays();
+  updateHolidays();
+  showLoading(false);
+  // Ocultar resultados y limpiar textos
+  resultsContainer.style.display = "none";
+  balanceValueEl.textContent = "--";
+  balanceTextEl.textContent = "Introduce horas asignadas válidas";
+  totalMonthHours.textContent = "--";
+  hoursSoFar.textContent = "--";
+  workdaysEl.textContent = "--";
+  offDaysEl.textContent = "--";
+  monthNameTitle.textContent = "";
+  yearTitle.textContent = "";
+}
+
+resetBtn.addEventListener("click", resetApp);
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Horas asignadas al mes: hasta 300h
+  fillHourSelect(document.getElementById('totalHours'), 300, 0.25);
+  // Horas de festivo: hasta 12h
+  fillHourSelect(document.getElementById('hours-festivo'), 12, 0.25);
+  // Horas de cada día: hasta 12h
+  ['mon','tue','wed','thu','fri','sat','sun'].forEach(key => {
+    fillHourSelect(document.getElementById(`hours-${key}`), 12, 0.25);
+  });
+  // Inicializar la app solo después de rellenar los selects
+  resetApp();
+});

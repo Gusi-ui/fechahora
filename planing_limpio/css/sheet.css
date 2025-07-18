@@ -294,18 +294,51 @@ input:checked + .slider:before {
   margin-bottom: 1rem;
 }
 
+/* Formulario de añadir festivo: escritorio en línea, móvil apilado */
 .add-holiday-form {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: row;
+  gap: 0.5em;
   align-items: center;
+  margin-top: 1em;
 }
-
+.add-holiday-form input[type="date"],
 .add-holiday-form input[type="text"] {
-  flex: 1;
+  padding: 0.5em 0.75em;
+  border-radius: 0.4em;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  min-width: 120px;
 }
-
-#loading {
-  display: none;
+.add-holiday-form button {
+  font-size: 1.5em;
+  padding: 0.25em 0.7em;
+  border-radius: 0.5em;
+  background: #ffd600;
+  color: #222;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.add-holiday-form button:hover {
+  background: #ffe066;
+}
+@media (max-width: 600px) {
+  .add-holiday-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75em;
+  }
+  .add-holiday-form input,
+  .add-holiday-form button {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
 }
 
 .highlight-field {
@@ -795,4 +828,131 @@ input.big-hours {
     max-width: 100% !important;
     min-width: 0;
   }
+}
+
+/* --- SlimSelect cuadrado para selects de horas --- */
+.slim-square,
+.slim-square .ss-main,
+.slim-square select,
+.ss-main.slim-square {
+  border-radius: 0 !important;
+}
+
+/* Forzar SlimSelect cuadrado en todos los dispositivos */
+.ss-main.slim-square {
+  border-radius: 0 !important;
+}
+
+/* Si hay sombra interna, quitarla para un look más plano */
+.slim-square .ss-main {
+  box-shadow: none !important;
+}
+
+/* Forzar menú SlimSelect completamente cuadrado y fondo plano, máxima especificidad */
+body .slim-square .ss-content,
+body .slim-square .ss-list,
+body .ss-content.slim-square,
+body .ss-list.slim-square,
+body .ss-content,
+body .ss-list {
+  border-radius: 0 !important;
+  background: none !important;
+  background-color: #fff !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+  outline: none !important;
+}
+
+@media (min-width: 768px) {
+  .ss-main,
+  .ss-content,
+  .ss-list,
+  .ss-main.slim-square,
+  .ss-content.slim-square,
+  .ss-list.slim-square {
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
+    padding: 0.5em 1em !important;
+    min-height: 2.2em !important;
+  }
+  .ss-main .ss-single-selected,
+  .ss-main .ss-placeholder {
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
+    padding: 0.5em 1em !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .weekdays-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .weekday-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between;
+    padding: 0.5em 0.25em;
+    background: #fff;
+    border-radius: 0.5em;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .weekday-item label {
+    margin: 0 0.5em 0 0;
+    min-width: 70px;
+    flex: 0 0 auto;
+  }
+  .weekday-item .switch {
+    margin-right: 1em;
+    flex: 0 0 auto;
+  }
+  .weekday-hours {
+    min-width: 90px;
+    max-width: 50vw;
+    margin: 0;
+    flex: 1 1 auto;
+  }
+}
+
+/* Tarjetas apiladas para festivos - versión simplificada */
+.festivo-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 0.5em;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  padding: 0.75em 1em;
+  margin-bottom: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  transition: background 0.2s, color 0.2s;
+}
+.festivo-card.festivo-pasado {
+  background: #f5f5f5;
+  color: #aaa;
+  border-color: #eee;
+}
+.festivo-card .festivo-fecha {
+  font-size: 0.95em;
+  color: #888;
+  margin-bottom: 0.2em;
+}
+.festivo-card.festivo-pasado .festivo-fecha {
+  color: #bbb;
+}
+.festivo-card .festivo-nombre {
+  font-size: 1.25em;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 0.1em;
+}
+.festivo-card.festivo-pasado .festivo-nombre {
+  color: #aaa;
+}
+.festivo-card .festivo-actions {
+  text-align: right;
+  margin-top: 0.2em;
 }
