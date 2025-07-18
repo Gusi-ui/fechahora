@@ -1,117 +1,166 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Calculadora de Horas de Servicio</title>
-  <link rel="stylesheet" href="css/sheet.css">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-</head>
-<body>
-  <div class="container">
-    <!-- Cabecera principal -->
-    <div class="header">
-      <h1>🕒 Calculadora de Horas de Servicio</h1>
-      <p>Calcula el balance de horas mensuales según tu plan.</p>
-    </div>
-    <!-- Controles superiores -->
-    <div class="top-controls-v2">
-      <div class="styled-select-group">
-        <label for="year">Año</label>
-        <select id="year" class="styled-select"></select>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculadora de Horas de Servicio</title>
+    <link rel="stylesheet" href="css/sheet.css" />
+    <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="favicons/favicon-96x96.png"
+    />
+    <link rel="icon" type="image/x-icon" href="favicons/favicon.ico" />
+    <link rel="apple-touch-icon" href="favicons/apple-touch-icon.png" />
+    <link rel="manifest" href="favicons/site.webmanifest" />
+    <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Cabecera principal -->
+      <div class="header">
+        <h1>🕒 Calculadora de Horas de Servicio</h1>
+        <p>Calcula el balance de horas mensuales según tu plan.</p>
       </div>
-      <div class="styled-select-group">
-        <label for="month">Mes</label>
-        <select id="month" class="styled-select">
-          <option value="0">Enero</option>
-          <option value="1">Febrero</option>
-          <option value="2">Marzo</option>
-          <option value="3">Abril</option>
-          <option value="4">Mayo</option>
-          <option value="5">Junio</option>
-          <option value="6">Julio</option>
-          <option value="7">Agosto</option>
-          <option value="8">Septiembre</option>
-          <option value="9">Octubre</option>
-          <option value="10">Noviembre</option>
-          <option value="11">Diciembre</option>
-        </select>
+      <!-- Controles superiores -->
+      <div class="top-controls-v2">
+        <div class="styled-select-group">
+          <label for="year">Año</label>
+          <div class="select-wrapper">
+            <select id="year" class="styled-select slim-select"></select>
+            <span class="select-arrow"></span>
+          </div>
+        </div>
+        <div class="styled-select-group">
+          <label for="month">Mes</label>
+          <div class="select-wrapper">
+            <select id="month" class="styled-select slim-select">
+              <option value="0">Enero</option>
+              <option value="1">Febrero</option>
+              <option value="2">Marzo</option>
+              <option value="3">Abril</option>
+              <option value="4">Mayo</option>
+              <option value="5">Junio</option>
+              <option value="6">Julio</option>
+              <option value="7">Agosto</option>
+              <option value="8">Septiembre</option>
+              <option value="9">Octubre</option>
+              <option value="10">Noviembre</option>
+              <option value="11">Diciembre</option>
+            </select>
+            <span class="select-arrow"></span>
+          </div>
+        </div>
+        <div class="assigned-hours-field">
+          <label for="totalHours">Horas asignadas al mes</label>
+          <input
+            type="number"
+            id="totalHours"
+            value="86"
+            step="0.5"
+            class="assigned-hours-input-v2 big-hours"
+          />
+        </div>
       </div>
-      <div class="assigned-hours-field">
-        <label for="totalHours">Horas asignadas al mes</label>
-        <input type="number" id="totalHours" value="86" step="0.5" class="assigned-hours-input-v2">
-      </div>
-    </div>
 
-    <div class="calculation-settings">
+      <div class="calculation-settings">
         <div class="input-group">
-            <label for="hoursWeekday">Horas / día laborable:</label>
-            <input type="number" id="hoursWeekday" value="3.5" step="0.5">
+          <label for="hoursWeekday">Horas / día laborable:</label>
+          <input type="number" id="hoursWeekday" value="3.5" step="0.5" />
         </div>
         <div class="input-group">
-            <label for="hoursOffday">Horas / día festivo o fin de semana:</label>
-            <input type="number" id="hoursOffday" value="1.5" step="0.5">
+          <label for="hoursOffday">Horas / día festivo o fin de semana:</label>
+          <input type="number" id="hoursOffday" value="1.5" step="0.5" />
         </div>
         <div class="input-group toggle-group">
-            <label for="includeOffdays">Contabilizar fines de semana y festivos:</label>
-            <label class="switch">
-                <input type="checkbox" id="includeOffdays" checked>
-                <span class="slider round"></span>
-            </label>
-        </div>
-    </div>
-
-    <div class="main-action">
-      <button class="btn" id="calculateBtn">Calcular Balance</button>
-    </div>
-
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <p>Cargando datos de festivos...</p>
-    </div>
-
-    <div id="error-container"></div>
-
-    <!-- Resultados -->
-    <div id="results-container" class="results-container" style="display: none;">
-      <div class="summary-card">
-        <h2>📊 Balance del Mes</h2>
-        <p class="balance-value" id="balanceValue">0.00 horas</p>
-        <p class="balance-text" id="balanceText">--</p>
-      </div>
-      <div class="details-grid">
-        <div class="detail-card">
-          <h3 id="totalMonthHoursTitle">🗓️ Horas para <span id="monthNameTitle">Julio</span> <span id="yearTitle">2025</span></h3>
-          <p id="totalMonthHours">--</p>
-        </div>
-        <div class="detail-card">
-          <h3>✅ Horas realizadas hasta hoy</h3>
-          <p id="hoursSoFar">--</p>
-        </div>
-        <div class="detail-card">
-          <h3>💼 Días laborables</h3>
-          <p id="workdays">--</p>
-        </div>
-        <div class="detail-card">
-          <h3>🎉 Fines de semana / Festivos</h3>
-          <p id="offDays">--</p>
+          <label for="includeOffdays"
+            >Contabilizar fines de semana y festivos:</label
+          >
+          <label class="switch">
+            <input type="checkbox" id="includeOffdays" checked />
+            <span class="slider round"></span>
+          </label>
         </div>
       </div>
-    </div>
-    <!-- Festivos personalizados -->
-    <div class="results-container">
-      <button id="toggleHolidayListBtn" class="btn" type="button">🎉 Mostrar festivos</button>
-      <div id="holidayListContainer" class="holiday-list-container">
-        <h3>🎈 Festivos usados en el cálculo</h3>
-        <ul id="holidayList"></ul>
-        <form id="addHolidayForm" class="add-holiday-form">
-          <input type="date" id="customHolidayDate" required />
-          <input type="text" id="customHolidayName" placeholder="Nombre del festivo" required />
-          <button type="submit" class="btn">➕ Añadir</button>
-        </form>
+
+      <div class="main-action">
+        <button class="btn" id="calculateBtn">Calcular Balance</button>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Cargando datos de festivos...</p>
+      </div>
+
+      <div id="error-container"></div>
+
+      <!-- Resultados -->
+      <div
+        id="results-container"
+        class="results-container"
+        style="display: none"
+      >
+        <div class="summary-card">
+          <h2>📊 Balance del Mes</h2>
+          <p class="balance-value" id="balanceValue">0.00 horas</p>
+          <p class="balance-text" id="balanceText">--</p>
+        </div>
+        <div class="details-grid">
+          <div class="detail-card">
+            <h3 id="totalMonthHoursTitle">
+              🗓️ Horas para <span id="monthNameTitle">Julio</span>
+              <span id="yearTitle">2025</span>
+            </h3>
+            <p id="totalMonthHours">--</p>
+          </div>
+          <div class="detail-card">
+            <h3>✅ Horas realizadas hasta hoy</h3>
+            <p id="hoursSoFar">--</p>
+          </div>
+          <div class="detail-card">
+            <h3>💼 Días laborables</h3>
+            <p id="workdays">--</p>
+          </div>
+          <div class="detail-card">
+            <h3>🎉 Fines de semana / Festivos</h3>
+            <p id="offDays">--</p>
+          </div>
+        </div>
+      </div>
+      <!-- Festivos personalizados -->
+      <div class="results-container">
+        <button id="toggleHolidayListBtn" class="btn" type="button">
+          🎉 Mostrar festivos
+        </button>
+        <div id="holidayListContainer" class="holiday-list-container">
+          <h3>🎈 Festivos usados en el cálculo</h3>
+          <ul id="holidayList"></ul>
+          <form id="addHolidayForm" class="add-holiday-form">
+            <input type="date" id="customHolidayDate" required />
+            <input
+              type="text"
+              id="customHolidayName"
+              placeholder="Nombre del festivo"
+              required
+            />
+            <button type="submit" class="btn">➕ Añadir</button>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-  <script src="main.js"></script>
-</body>
+    <script src="main.js"></script>
+    <script>
+      // Inicializar SlimSelect para selects modernos
+      document.addEventListener("DOMContentLoaded", function () {
+        new SlimSelect({ select: "#year", settings: { showSearch: false } });
+        new SlimSelect({ select: "#month", settings: { showSearch: false } });
+      });
+    </script>
+  </body>
 </html>

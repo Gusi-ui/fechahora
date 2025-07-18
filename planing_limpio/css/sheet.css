@@ -5,7 +5,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   padding: 2rem;
@@ -21,7 +21,7 @@ body {
   margin: 0 auto;
   background: white;
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -64,7 +64,8 @@ body {
   color: #495057;
 }
 
-select, input[type="number"] {
+select,
+input[type="number"] {
   padding: 0.75rem 1rem;
   border: 2px solid #e9ecef;
   border-radius: 10px;
@@ -74,7 +75,8 @@ select, input[type="number"] {
   width: 100%;
 }
 
-select:focus, input:focus {
+select:focus,
+input:focus {
   outline: none;
   border-color: #4facfe;
   box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
@@ -122,7 +124,7 @@ select:focus, input:focus {
   height: 34px;
 }
 
-.switch input { 
+.switch input {
   opacity: 0;
   width: 0;
   height: 0;
@@ -136,7 +138,7 @@ select:focus, input:focus {
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  transition: .4s;
+  transition: 0.4s;
 }
 
 .slider:before {
@@ -147,7 +149,7 @@ select:focus, input:focus {
   left: 4px;
   bottom: 4px;
   background-color: white;
-  transition: .4s;
+  transition: 0.4s;
 }
 
 input:checked + .slider {
@@ -258,22 +260,33 @@ input:checked + .slider:before {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {
-  body { padding: 1rem; }
-  .header h1 { font-size: 2rem; }
-  .controls { grid-template-columns: 1fr; }
-} 
+  body {
+    padding: 1rem;
+  }
+  .header h1 {
+    font-size: 2rem;
+  }
+  .controls {
+    grid-template-columns: 1fr;
+  }
+}
 
 .holiday-list-container {
   display: none;
   margin-bottom: 1rem;
 }
 
-#holidayListContainer.active, .holiday-list-container.active {
+#holidayListContainer.active,
+.holiday-list-container.active {
   display: block;
 }
 
@@ -293,7 +306,7 @@ input:checked + .slider:before {
 
 #loading {
   display: none;
-} 
+}
 
 .highlight-field {
   border: 3px solid #1976d2;
@@ -302,13 +315,15 @@ input:checked + .slider:before {
   color: #1a237e;
   box-shadow: 0 0 12px 0 #ffd60066;
   font-size: 1.5rem;
-  transition: box-shadow 0.3s, border-color 0.3s;
+  transition:
+    box-shadow 0.3s,
+    border-color 0.3s;
 }
 .highlight-field:focus {
   border-color: #ffab00;
   box-shadow: 0 0 20px 2px #ffd60099;
   background: linear-gradient(90deg, #fffde7 0%, #fff9c4 100%);
-} 
+}
 
 .assigned-hours-card {
   display: flex;
@@ -332,7 +347,7 @@ input:checked + .slider:before {
   color: #ffab00;
   margin-left: 0.5rem;
   margin-right: 0.5rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   letter-spacing: 1px;
 }
 .assigned-hours-input {
@@ -358,7 +373,7 @@ input:checked + .slider:before {
 }
 .edit-hours-btn:hover {
   color: #ffab00;
-} 
+}
 
 .controls--with-hours {
   display: flex;
@@ -395,7 +410,7 @@ input:checked + .slider:before {
     font-size: 1rem;
     padding: 1rem;
   }
-} 
+}
 
 .top-controls {
   display: flex;
@@ -435,7 +450,9 @@ input:checked + .slider:before {
   font-weight: bold;
   color: #1a237e;
   min-width: 120px;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
 }
 .chip-label {
   font-size: 1rem;
@@ -446,7 +463,7 @@ input:checked + .slider:before {
   font-size: 1.5rem;
   color: #ffab00;
   margin: 0 0.2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   letter-spacing: 1px;
 }
 .chip-input {
@@ -486,7 +503,7 @@ input:checked + .slider:before {
     font-size: 1rem;
     padding: 0.7rem 1rem;
   }
-} 
+}
 
 .top-chips {
   display: flex;
@@ -512,7 +529,9 @@ input:checked + .slider:before {
   min-width: 90px;
   box-shadow: 0 2px 8px 0 #e0e0e022;
   border: 2px solid transparent;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
 }
 .chip-year {
   background: linear-gradient(90deg, #e3f0ff 0%, #b3e5fc 100%);
@@ -533,10 +552,11 @@ input:checked + .slider:before {
   font-size: 1.5rem;
   color: inherit;
   margin: 0 0.2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   letter-spacing: 1px;
 }
-.chip-input, .chip-select {
+.chip-input,
+.chip-select {
   font-size: 1.2rem;
   border: none;
   background: transparent;
@@ -577,7 +597,7 @@ input:checked + .slider:before {
     font-size: 1rem;
     padding: 0.7rem 1rem;
   }
-} 
+}
 
 .top-controls-v2 {
   display: flex;
@@ -604,6 +624,11 @@ input:checked + .slider:before {
   color: #495057;
   margin-bottom: 0.2rem;
 }
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
 .styled-select {
   appearance: none;
   -webkit-appearance: none;
@@ -611,18 +636,76 @@ input:checked + .slider:before {
   background: linear-gradient(90deg, #e3f0ff 0%, #b3e5fc 100%);
   border: 2px solid #4fc3f7;
   border-radius: 999px;
-  padding: 0.5rem 1.5rem 0.5rem 1rem;
-  font-size: 1.1rem;
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #1565c0;
   box-shadow: 0 2px 8px 0 #e0e0e022;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   cursor: pointer;
+  width: 100%;
 }
 .styled-select:focus {
   border-color: #1976d2;
   box-shadow: 0 0 0 2px #1976d233;
+}
+.select-arrow {
+  position: absolute;
+  right: 1.2rem;
+  pointer-events: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.select-arrow::after {
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 8px solid #1976d2;
+}
+/* Ocultar flecha nativa en algunos navegadores */
+.styled-select::-ms-expand {
+  display: none;
+}
+.styled-select::-webkit-inner-spin-button,
+.styled-select::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Horas asignadas destacadas */
+.big-hours {
+  font-size: 2.2rem;
+  color: #bfa100;
+  background: linear-gradient(90deg, #fffbe7 0%, #ffe082 100%);
+  border: 3px solid #ffd600;
+  box-shadow: 0 4px 24px 0 #ffd60033;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 999px;
+  padding: 1rem 2.5rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+  width: 100%;
+  max-width: 220px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (max-width: 700px) {
+  .big-hours {
+    font-size: 1.5rem;
+    padding: 0.7rem 1.2rem;
+    max-width: 100%;
+  }
 }
 .assigned-hours-field {
   display: flex;
@@ -646,7 +729,9 @@ input:checked + .slider:before {
   padding: 0.5rem 1.2rem;
   box-shadow: 0 2px 8px 0 #ffd60022;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   text-align: center;
 }
 .assigned-hours-input-v2:focus {
@@ -660,4 +745,54 @@ input:checked + .slider:before {
     gap: 1rem;
     padding: 1rem;
   }
-} 
+}
+
+/* Selectores grandes en escritorio */
+@media (min-width: 701px) {
+  .styled-select {
+    font-size: 1.5rem;
+    padding: 1rem 3rem 1rem 1.5rem;
+    height: 3.2rem;
+    min-width: 180px;
+  }
+}
+/* Selectores más cuadrados en móvil */
+@media (max-width: 700px) {
+  .styled-select {
+    border-radius: 16px;
+    font-size: 1.1rem;
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    height: 2.4rem;
+  }
+}
+
+.styled-select {
+  border-radius: 16px !important;
+}
+.big-hours {
+  font-size: 3rem;
+  padding: 1.5rem 3.5rem;
+  max-width: 320px;
+}
+@media (max-width: 700px) {
+  .big-hours {
+    font-size: 2rem;
+    padding: 1.2rem 1.5rem;
+    max-width: 100%;
+  }
+}
+input.big-hours {
+  font-size: 3rem !important;
+  padding: 1.5rem 3.5rem !important;
+  max-width: 320px !important;
+  min-width: 180px;
+  height: auto !important;
+}
+@media (max-width: 700px) {
+  input.big-hours {
+    font-size: 2rem !important;
+    padding: 1.2rem 1.5rem !important;
+    max-width: 100% !important;
+    min-width: 0;
+  }
+}
