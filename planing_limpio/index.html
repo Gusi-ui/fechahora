@@ -5,14 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Horas de Servicio</title>
   <link rel="stylesheet" href="css/sheet.css">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 <body>
   <div class="container">
+    <!-- Cabecera principal -->
     <div class="header">
-      <h1>Calculadora de Horas de Servicio</h1>
+      <h1>🕒 Calculadora de Horas de Servicio</h1>
       <p>Calcula el balance de horas mensuales según tu plan.</p>
     </div>
-
+    <!-- Controles superiores -->
     <div class="top-controls-v2">
       <div class="styled-select-group">
         <label for="year">Año</label>
@@ -70,42 +72,42 @@
 
     <div id="error-container"></div>
 
+    <!-- Resultados -->
     <div id="results-container" class="results-container" style="display: none;">
       <div class="summary-card">
-        <h2>Balance del Mes</h2>
+        <h2>📊 Balance del Mes</h2>
         <p class="balance-value" id="balanceValue">0.00 horas</p>
         <p class="balance-text" id="balanceText">--</p>
       </div>
       <div class="details-grid">
         <div class="detail-card">
-          <h3 id="totalMonthHoursTitle">Horas para <span id="monthNameTitle">Julio</span> <span id="yearTitle">2025</span></h3>
+          <h3 id="totalMonthHoursTitle">🗓️ Horas para <span id="monthNameTitle">Julio</span> <span id="yearTitle">2025</span></h3>
           <p id="totalMonthHours">--</p>
         </div>
         <div class="detail-card">
-          <h3>Horas realizadas hasta hoy</h3>
+          <h3>✅ Horas realizadas hasta hoy</h3>
           <p id="hoursSoFar">--</p>
         </div>
         <div class="detail-card">
-          <h3>Días laborables</h3>
+          <h3>💼 Días laborables</h3>
           <p id="workdays">--</p>
         </div>
         <div class="detail-card">
-          <h3>Fines de semana / Festivos</h3>
+          <h3>🎉 Fines de semana / Festivos</h3>
           <p id="offDays">--</p>
         </div>
       </div>
     </div>
-
-    <!-- Botón y contenedor de festivos al final -->
+    <!-- Festivos personalizados -->
     <div class="results-container">
-      <button id="toggleHolidayListBtn" class="btn" type="button">Mostrar festivos</button>
+      <button id="toggleHolidayListBtn" class="btn" type="button">🎉 Mostrar festivos</button>
       <div id="holidayListContainer" class="holiday-list-container">
-        <h3>Festivos usados en el cálculo</h3>
+        <h3>🎈 Festivos usados en el cálculo</h3>
         <ul id="holidayList"></ul>
         <form id="addHolidayForm" class="add-holiday-form">
           <input type="date" id="customHolidayDate" required />
           <input type="text" id="customHolidayName" placeholder="Nombre del festivo" required />
-          <button type="submit" class="btn">Añadir</button>
+          <button type="submit" class="btn">➕ Añadir</button>
         </form>
       </div>
     </div>
