@@ -123,7 +123,26 @@ function fillHourSelect(select, max, step) {
   for (let i = 0; i <= max; i += step) {
     const option = document.createElement('option');
     option.value = i;
-    option.textContent = i.toFixed(2);
+    
+    // Formatear la etiqueta de manera más amigable
+    let label = i.toFixed(2);
+    if (i === 0) {
+      label = '0 horas';
+    } else if (i === Math.floor(i)) {
+      label = `${i} horas`;
+    } else {
+      const hours = Math.floor(i);
+      const minutes = Math.round((i - hours) * 60);
+      if (hours > 0 && minutes > 0) {
+        label = `${hours}h ${minutes}min`;
+      } else if (hours > 0) {
+        label = `${hours} horas`;
+      } else {
+        label = `${minutes} minutos`;
+      }
+    }
+    
+    option.textContent = label;
     select.appendChild(option);
   }
 }
@@ -434,6 +453,9 @@ async function initializeApp() {
     populateYearSelector();
     loadCustomHolidays();
     
+    // Inicializar días de la semana
+    initializeWeekdays();
+    
     // Rellenar selects de horas
     fillHourSelect(assignedHoursInput, 24, 0.25);
     if (festivoHoursInput) {
@@ -441,8 +463,12 @@ async function initializeApp() {
       festivoHoursInput.classList.add('slim-square');
     }
     
-    // Inicializar días de la semana
-    initializeWeekdays();
+    // Rellenar selects de horas para días de la semana
+    weekdayIds.forEach(({ key }) => {
+      if (weekdayHoursInputs[key]) {
+        fillHourSelect(weekdayHoursInputs[key], 24, 0.25);
+      }
+    });
     
     // Inicializar SlimSelect para los selects principales si está disponible
     if (typeof SlimSelect !== 'undefined') {
