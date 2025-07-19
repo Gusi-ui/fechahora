@@ -197,12 +197,12 @@ function calculateBalance() {
         }
       }
     } else {
-      const weekdayConfig = weekdayConfig[dayOfWeek];
-      if (weekdayConfig && weekdayConfig.enabled && weekdayConfig.hours > 0) {
+      const dayConfig = weekdayConfig[dayOfWeek];
+      if (dayConfig && dayConfig.enabled && dayConfig.hours > 0) {
         workdays++;
-        totalMonthHours += weekdayConfig.hours;
+        totalMonthHours += dayConfig.hours;
         if (day <= currentDay && month === currentMonth && year === currentYear) {
-          hoursSoFar += weekdayConfig.hours;
+          hoursSoFar += dayConfig.hours;
         }
       }
     }
@@ -290,12 +290,19 @@ function initializeWeekdays() {
             input.removeAttribute('inert');
             input.removeAttribute('aria-hidden');
             
-            if (!slimSelectInstances[key]) {
-              slimSelectInstances[key] = new SlimSelect({ 
-                select: `#hours-${key}`, 
-                settings: { showSearch: false } 
-              });
-            }
+            // Inicializar SlimSelect después de un pequeño delay para asegurar que el elemento esté listo
+            setTimeout(() => {
+              if (!slimSelectInstances[key] && typeof SlimSelect !== 'undefined') {
+                try {
+                  slimSelectInstances[key] = new SlimSelect({ 
+                    select: `#hours-${key}`, 
+                    settings: { showSearch: false } 
+                  });
+                } catch (error) {
+                  console.warn(`Error inicializando SlimSelect para ${key}:`, error);
+                }
+              }
+            }, 100);
           } else {
             input.style.display = 'none';
             input.classList.add('hidden');
@@ -473,9 +480,9 @@ async function initializeApp() {
     // Inicializar SlimSelect para los selects principales si está disponible
     if (typeof SlimSelect !== 'undefined') {
       try {
-        new SlimSelect({ select: "#year", settings: { showSearch: false } });
-        new SlimSelect({ select: "#month", settings: { showSearch: false } });
-        new SlimSelect({ select: "#totalHours", settings: { showSearch: false } });
+        if (yearSelect) new SlimSelect({ select: "#year", settings: { showSearch: false } });
+        if (monthSelect) new SlimSelect({ select: "#month", settings: { showSearch: false } });
+        if (assignedHoursInput) new SlimSelect({ select: "#totalHours", settings: { showSearch: false } });
         console.log('✅ SlimSelect inicializado correctamente');
       } catch (slimError) {
         console.warn('⚠️ Error inicializando SlimSelect:', slimError);
