@@ -630,6 +630,13 @@ function showLoading(show) {
 // --- INICIALIZACIÓN DE LA APLICACIÓN ---
 async function initializeApp() {
   try {
+    console.log('Inicializando aplicación...');
+    
+    // Verificar que SlimSelect esté disponible
+    if (typeof SlimSelect === 'undefined') {
+      console.warn('SlimSelect no está disponible, usando selects nativos');
+    }
+    
     populateYearSelector();
     loadCustomHolidays();
     
@@ -642,6 +649,18 @@ async function initializeApp() {
     
     // Inicializar días de la semana
     initializeWeekdays();
+    
+    // Inicializar SlimSelect para los selects principales si está disponible
+    if (typeof SlimSelect !== 'undefined') {
+      try {
+        new SlimSelect({ select: "#year", settings: { showSearch: false } });
+        new SlimSelect({ select: "#month", settings: { showSearch: false } });
+        new SlimSelect({ select: "#totalHours", settings: { showSearch: false } });
+        console.log('SlimSelect inicializado correctamente');
+      } catch (slimError) {
+        console.warn('Error inicializando SlimSelect:', slimError);
+      }
+    }
     
     // Cargar festivos de Mataró
     showLoading(true);
@@ -671,10 +690,12 @@ async function initializeApp() {
       alert("Caché limpiado. Los festivos se recargarán en la próxima consulta.");
     });
     
+    console.log('Aplicación inicializada correctamente');
+    
   } catch (error) {
     console.error("Error inicializando la aplicación:", error);
     showLoading(false);
-    displayError("Error al inicializar la aplicación.");
+    displayError(`Error al inicializar la aplicación: ${error.message}`);
   }
 }
 
@@ -709,9 +730,6 @@ async function resetApp() {
   }
 }
 
-// --- INICIALIZAR CUANDO EL DOM ESTÉ LISTO ---
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeApp);
-} else {
-  initializeApp();
-}
+// --- INICIALIZAR CUANDO EL SCRIPT SE CARGA ---
+console.log('Script main.js cargado, iniciando aplicación...');
+initializeApp();
