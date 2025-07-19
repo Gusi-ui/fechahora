@@ -140,10 +140,15 @@ function initializeWeekdays() {
 
 const festivoHoursGroup = document.getElementById('festivo-hours-group');
 const festivoHoursInput = document.getElementById('hours-festivo');
-festivoHoursInput.classList.add('slim-square');
+
+// Verificar que los elementos existan antes de usarlos
+if (festivoHoursInput) {
+  festivoHoursInput.classList.add('slim-square');
+}
 
 // Mostrar/ocultar input de horas de festivo según el interruptor
-includeOffdaysToggle.addEventListener('change', () => {
+if (includeOffdaysToggle && festivoHoursGroup && festivoHoursInput) {
+  includeOffdaysToggle.addEventListener('change', () => {
   if (includeOffdaysToggle.checked) {
     // Mostrar el campo
     festivoHoursGroup.style.display = 'block';
@@ -200,11 +205,13 @@ includeOffdaysToggle.addEventListener('change', () => {
   }
   
   debouncedCalculateBalance();
-});
+  });
+}
 
 // Mostrar/ocultar lista de festivos
 let holidayListVisible = false;
-toggleHolidayListBtn.addEventListener("click", () => {
+if (toggleHolidayListBtn && holidayListContainer) {
+  toggleHolidayListBtn.addEventListener("click", () => {
   holidayListVisible = !holidayListVisible;
   if (holidayListVisible) {
     holidayListContainer.classList.add("active");
@@ -214,7 +221,8 @@ toggleHolidayListBtn.addEventListener("click", () => {
   toggleHolidayListBtn.textContent = holidayListVisible
     ? "Ocultar festivos"
     : "Mostrar festivos";
-});
+  });
+}
 
 // --- FUNCIONES DE PERSISTENCIA ---
 function saveCustomHolidays() {
@@ -331,7 +339,8 @@ function updateHolidays() {
 }
 
 // --- MANEJO DE FORMULARIOS ---
-addHolidayForm.addEventListener("submit", (e) => {
+if (addHolidayForm) {
+  addHolidayForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const date = customHolidayDate.value;
   const name = customHolidayName.value.trim() || "Personalizado";
@@ -342,7 +351,8 @@ addHolidayForm.addEventListener("submit", (e) => {
   customHolidayDate.value = "";
   customHolidayName.value = "";
   updateHolidays();
-});
+  });
+}
 
 // --- CARGA DE FESTIVOS DE MATARÓ OPTIMIZADA ---
 async function loadMataroHolidays() {
