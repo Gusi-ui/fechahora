@@ -22,9 +22,12 @@
     <!-- CSS principal -->
     <link rel="stylesheet" href="css/sheet.css" />
     
-    <!-- SlimSelect - Cargado de forma asíncrona -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.css" /></noscript>
+    <!-- SlimSelect - Cargado de forma síncrona -->
+    <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.css" />
+    
+    <!-- Script principal -->
+    <script src="main.js?v=2.4"></script>
   </head>
   <body>
     <div class="container">
@@ -266,115 +269,5 @@
         </div>
       </footer>
     </div>
-
-    <!-- Scripts optimizados -->
-    <script>
-      // Función para cargar SlimSelect de forma robusta
-      function loadSlimSelect() {
-        return new Promise((resolve, reject) => {
-          // Si ya está cargado, resolver inmediatamente
-          if (window.SlimSelect) {
-            resolve(window.SlimSelect);
-            return;
-          }
-          
-          // Crear script para SlimSelect
-          const script = document.createElement('script');
-          script.src = 'https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.js';
-          script.async = true;
-          
-          script.onload = () => {
-            // Verificar que SlimSelect se cargó correctamente
-            if (window.SlimSelect) {
-              resolve(window.SlimSelect);
-            } else {
-              reject(new Error('SlimSelect no se cargó correctamente'));
-            }
-          };
-          
-          script.onerror = () => {
-            reject(new Error('Error cargando SlimSelect desde CDN'));
-          };
-          
-          // Timeout de seguridad
-          const timeout = setTimeout(() => {
-            reject(new Error('Timeout cargando SlimSelect'));
-          }, 10000);
-          
-          script.onload = () => {
-            clearTimeout(timeout);
-            if (window.SlimSelect) {
-              resolve(window.SlimSelect);
-            } else {
-              reject(new Error('SlimSelect no se cargó correctamente'));
-            }
-          };
-          
-          script.onerror = () => {
-            clearTimeout(timeout);
-            reject(new Error('Error cargando SlimSelect desde CDN'));
-          };
-          
-          document.head.appendChild(script);
-        });
-      }
-      
-      // Función para cargar el script principal
-      function loadMainScript() {
-        return new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'main.js?v=2.2';
-          script.async = true;
-          
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error('Error cargando main.js'));
-          
-          document.body.appendChild(script);
-        });
-      }
-      
-      // Inicializar aplicación de forma robusta
-      async function initializeApp() {
-        try {
-          console.log('Iniciando carga de SlimSelect...');
-          await loadSlimSelect();
-          console.log('SlimSelect cargado correctamente');
-          
-          console.log('Cargando script principal...');
-          await loadMainScript();
-          console.log('Script principal cargado correctamente');
-          
-        } catch (error) {
-          console.error('Error en la inicialización:', error);
-          
-          // Mostrar error al usuario
-          const errorContainer = document.getElementById('error-container');
-          if (errorContainer) {
-            errorContainer.innerHTML = `
-              <div class="error-message">
-                <h3>⚠️ Error de inicialización</h3>
-                <p>${error.message}</p>
-                <p>La aplicación puede funcionar con funcionalidad limitada.</p>
-                <button onclick="location.reload()" class="btn">🔄 Recargar página</button>
-              </div>
-            `;
-          }
-          
-          // Intentar cargar el script principal de todas formas
-          try {
-            await loadMainScript();
-          } catch (mainError) {
-            console.error('Error cargando script principal:', mainError);
-          }
-        }
-      }
-      
-      // Iniciar cuando el DOM esté listo
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeApp);
-      } else {
-        initializeApp();
-      }
-    </script>
   </body>
 </html>

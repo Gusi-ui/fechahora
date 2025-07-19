@@ -730,6 +730,10 @@ async function resetApp() {
   }
 }
 
-// --- INICIALIZAR CUANDO EL SCRIPT SE CARGA ---
-console.log('Script main.js cargado, iniciando aplicación...');
-initializeApp();
+// --- INICIALIZAR CUANDO EL DOM ESTÉ LISTO ---
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  // Si el DOM ya está listo, inicializar inmediatamente
+  initializeApp();
+}
