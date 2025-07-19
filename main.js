@@ -294,15 +294,32 @@ function initializeWeekdays() {
             setTimeout(() => {
               if (!slimSelectInstances[key] && typeof SlimSelect !== 'undefined') {
                 try {
+                  // Destruir instancia anterior si existe
+                  if (slimSelectInstances[key]) {
+                    slimSelectInstances[key].destroy();
+                  }
+                  
                   slimSelectInstances[key] = new SlimSelect({ 
                     select: `#hours-${key}`, 
-                    settings: { showSearch: false } 
+                    settings: { 
+                      showSearch: false,
+                      allowDeselect: false,
+                      closeOnSelect: true
+                    } 
                   });
+                  
+                  // Forzar que SlimSelect se muestre correctamente
+                  const slimElement = input.nextElementSibling;
+                  if (slimElement && slimElement.classList.contains('ss-main')) {
+                    slimElement.style.display = 'block';
+                    slimElement.style.visibility = 'visible';
+                    slimElement.style.opacity = '1';
+                  }
                 } catch (error) {
                   console.warn(`Error inicializando SlimSelect para ${key}:`, error);
                 }
               }
-            }, 100);
+            }, 150);
           } else {
             input.style.display = 'none';
             input.classList.add('hidden');
@@ -474,6 +491,8 @@ async function initializeApp() {
     weekdayIds.forEach(({ key }) => {
       if (weekdayHoursInputs[key]) {
         fillHourSelect(weekdayHoursInputs[key], 24, 0.25);
+        // Asegurar que el select tenga la clase correcta
+        weekdayHoursInputs[key].classList.add('slim-square');
       }
     });
     

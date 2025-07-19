@@ -902,4 +902,55 @@ input:checked + .slider:before {
   pointer-events: none;
 }
 
+/* Estilos específicos para selects de horas */
+.weekday-hours {
+  min-width: 120px;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mejoras para SlimSelect en selects de horas */
+.ss-main {
+  min-width: 120px !important;
+  max-width: 200px !important;
+}
+
+.ss-main .ss-single-selected {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  font-size: var(--font-size-sm) !important;
+  line-height: 1.4 !important;
+}
+
+.ss-content {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+.ss-content .ss-option {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  font-size: var(--font-size-sm) !important;
+  line-height: 1.4 !important;
+}
+
+/* Clase específica para selects de horas */
+.slim-square {
+  min-width: 120px !important;
+  max-width: 200px !important;
+}
+
+/* Asegurar que los selects de horas tengan scroll */
+.weekday-hours,
+.ss-main {
+  overflow-y: auto !important;
+  max-height: 200px !important;
+}
+
 
