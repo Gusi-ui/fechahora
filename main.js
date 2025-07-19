@@ -733,11 +733,11 @@ function showLoading(show) {
 // --- INICIALIZACIÓN DE LA APLICACIÓN ---
 async function initializeApp() {
   try {
-    console.log('Inicializando aplicación...');
+    console.log('🚀 Inicializando aplicación...');
     
     // Verificar que SlimSelect esté disponible
     if (typeof SlimSelect === 'undefined') {
-      console.warn('SlimSelect no está disponible, usando selects nativos');
+      console.warn('⚠️ SlimSelect no está disponible, usando selects nativos');
     }
     
     populateYearSelector();
@@ -759,15 +759,19 @@ async function initializeApp() {
         new SlimSelect({ select: "#year", settings: { showSearch: false } });
         new SlimSelect({ select: "#month", settings: { showSearch: false } });
         new SlimSelect({ select: "#totalHours", settings: { showSearch: false } });
-        console.log('SlimSelect inicializado correctamente');
+        console.log('✅ SlimSelect inicializado correctamente');
       } catch (slimError) {
-        console.warn('Error inicializando SlimSelect:', slimError);
+        console.warn('⚠️ Error inicializando SlimSelect:', slimError);
       }
     }
     
-    // Cargar festivos de Mataró
-    showLoading(true);
-    await loadMataroHolidays();
+    // Cargar festivos básicos inmediatamente (sin esperar a Mataró)
+    console.log('📅 Cargando festivos básicos...');
+    const year = parseInt(yearSelect.value);
+    holidaysMataro = getBasicHolidays(year);
+    console.log('✅ Festivos básicos cargados:', holidaysMataro.length, 'festivos');
+    
+    // Ocultar loading inmediatamente
     showLoading(false);
     
     // Actualizar festivos y calcular balance inicial
@@ -775,9 +779,8 @@ async function initializeApp() {
     
     // Event listeners para controles principales
     yearSelect.addEventListener("change", async () => {
-      showLoading(true);
-      await loadMataroHolidays();
-      showLoading(false);
+      const selectedYear = parseInt(yearSelect.value);
+      holidaysMataro = getBasicHolidays(selectedYear);
       updateHolidays();
     });
     
@@ -793,10 +796,10 @@ async function initializeApp() {
       alert("Caché limpiado. Los festivos se recargarán en la próxima consulta.");
     });
     
-    console.log('Aplicación inicializada correctamente');
+    console.log('🎉 Aplicación inicializada correctamente');
     
   } catch (error) {
-    console.error("Error inicializando la aplicación:", error);
+    console.error("❌ Error inicializando la aplicación:", error);
     showLoading(false);
     displayError(`Error al inicializar la aplicación: ${error.message}`);
   }
