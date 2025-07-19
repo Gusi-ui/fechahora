@@ -3,12 +3,25 @@ const MATARO_HOLIDAYS_URL =
   "https://corsproxy.io/?https://www.mataro.cat/es/la-ciudad/festivos-locales";
 const LOCAL_STORAGE_KEY = "customHolidays";
 const MATARO_CACHE_KEY = "mataroHolidaysCache";
-const MATARO_CACHE_TTL = 0; // Forzar recarga inmediata (0 ms)
+const MATARO_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas en ms
 
 // --- ESTADO DE LA APLICACIÓN ---
 let holidaysMataro = [];
 let customHolidays = [];
 let holidays = [];
+let calculationTimeout = null;
+
+// --- UTILIDADES DE RENDIMIENTO ---
+function debounce(func, wait) {
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(calculationTimeout);
+      func(...args);
+    };
+    clearTimeout(calculationTimeout);
+    calculationTimeout = setTimeout(later, wait);
+  };
+}
 
 // --- ELEMENTOS DEL DOM ---
 const yearSelect = document.getElementById("year");
@@ -52,74 +65,78 @@ const weekdayIds = [
 const weekdaySwitches = {};
 const weekdayHoursInputs = {};
 const slimSelectInstances = {};
-weekdayIds.forEach(({ key }) => {
-  weekdaySwitches[key] = document.getElementById(`weekday-${key}`);
-  weekdayHoursInputs[key] = document.getElementById(`hours-${key}`);
-  weekdayHoursInputs[key].classList.add('slim-square');
-  
-  // Mostrar/ocultar input de horas según el interruptor
-  weekdaySwitches[key].addEventListener('change', () => {
-    const input = weekdayHoursInputs[key];
+
+// Inicializar días de la semana de forma optimizada
+function initializeWeekdays() {
+  weekdayIds.forEach(({ key }) => {
+    weekdaySwitches[key] = document.getElementById(`weekday-${key}`);
+    weekdayHoursInputs[key] = document.getElementById(`hours-${key}`);
+    weekdayHoursInputs[key].classList.add('slim-square');
     
-    if (weekdaySwitches[key].checked) {
-      // Mostrar el campo
-      input.style.display = 'block';
-      input.classList.remove('hidden');
-      input.removeAttribute('inert');
-      input.removeAttribute('aria-hidden');
+    // Mostrar/ocultar input de horas según el interruptor
+    weekdaySwitches[key].addEventListener('change', () => {
+      const input = weekdayHoursInputs[key];
       
-      // Reinicializar SlimSelect si no existe
-      if (!slimSelectInstances[key]) {
-        slimSelectInstances[key] = new SlimSelect({ 
-          select: `#hours-${key}`, 
-          settings: { showSearch: false } 
+      if (weekdaySwitches[key].checked) {
+        // Mostrar el campo
+        input.style.display = 'block';
+        input.classList.remove('hidden');
+        input.removeAttribute('inert');
+        input.removeAttribute('aria-hidden');
+        
+        // Reinicializar SlimSelect si no existe
+        if (!slimSelectInstances[key]) {
+          slimSelectInstances[key] = new SlimSelect({ 
+            select: `#hours-${key}`, 
+            settings: { showSearch: false } 
+          });
+        }
+        
+        // Forzar que SlimSelect se muestre
+        requestAnimationFrame(() => {
+          const slimElement = input.nextElementSibling;
+          if (slimElement && slimElement.classList.contains('ss-main')) {
+            slimElement.style.display = 'block';
+            slimElement.style.visibility = 'visible';
+            slimElement.style.opacity = '1';
+            slimElement.style.height = 'auto';
+            slimElement.style.overflow = 'visible';
+            slimElement.removeAttribute('inert');
+          }
+        });
+        
+      } else {
+        // Ocultar el campo
+        input.style.display = 'none';
+        input.classList.add('hidden');
+        input.setAttribute('inert', '');
+        input.value = '';
+        
+        // Destruir SlimSelect si existe
+        if (slimSelectInstances[key]) {
+          slimSelectInstances[key].destroy();
+          slimSelectInstances[key] = null;
+        }
+        
+        // Ocultar elementos SlimSelect
+        const slimElements = document.querySelectorAll(`#hours-${key} + .ss-main, #hours-${key} ~ .ss-main`);
+        slimElements.forEach(el => {
+          el.style.display = 'none';
+          el.style.visibility = 'hidden';
+          el.style.opacity = '0';
+          el.style.height = '0';
+          el.style.overflow = 'hidden';
+          el.setAttribute('inert', '');
         });
       }
       
-      // Forzar que SlimSelect se muestre
-      setTimeout(() => {
-        const slimElement = input.nextElementSibling;
-        if (slimElement && slimElement.classList.contains('ss-main')) {
-          slimElement.style.display = 'block';
-          slimElement.style.visibility = 'visible';
-          slimElement.style.opacity = '1';
-          slimElement.style.height = 'auto';
-          slimElement.style.overflow = 'visible';
-          slimElement.removeAttribute('inert');
-        }
-      }, 10);
-      
-    } else {
-      // Ocultar el campo
-      input.style.display = 'none';
-      input.classList.add('hidden');
-      input.setAttribute('inert', '');
-      input.value = '';
-      
-      // Destruir SlimSelect si existe
-      if (slimSelectInstances[key]) {
-        slimSelectInstances[key].destroy();
-        slimSelectInstances[key] = null;
-      }
-      
-      // Ocultar elementos SlimSelect
-      const slimElements = document.querySelectorAll(`#hours-${key} + .ss-main, #hours-${key} ~ .ss-main`);
-      slimElements.forEach(el => {
-        el.style.display = 'none';
-        el.style.visibility = 'hidden';
-        el.style.opacity = '0';
-        el.style.height = '0';
-        el.style.overflow = 'hidden';
-        el.setAttribute('inert', '');
-      });
-    }
+      debouncedCalculateBalance();
+    });
     
-    calculateBalance();
+    // Recalcular al cambiar horas
+    weekdayHoursInputs[key].addEventListener('change', debouncedCalculateBalance);
   });
-  
-  // Recalcular al cambiar horas
-  weekdayHoursInputs[key].addEventListener('change', calculateBalance);
-});
+}
 
 const festivoHoursGroup = document.getElementById('festivo-hours-group');
 const festivoHoursInput = document.getElementById('hours-festivo');
@@ -144,7 +161,7 @@ includeOffdaysToggle.addEventListener('change', () => {
     }
     
     // Forzar que SlimSelect se muestre
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       const slimElement = festivoHoursGroup.querySelector('.ss-main');
       if (slimElement) {
         slimElement.style.display = 'block';
@@ -154,7 +171,7 @@ includeOffdaysToggle.addEventListener('change', () => {
         slimElement.style.overflow = 'visible';
         slimElement.removeAttribute('inert');
       }
-    }, 10);
+    });
     
   } else {
     // Ocultar el campo
@@ -182,7 +199,7 @@ includeOffdaysToggle.addEventListener('change', () => {
     });
   }
   
-  calculateBalance();
+  debouncedCalculateBalance();
 });
 
 // Mostrar/ocultar lista de festivos
@@ -199,54 +216,91 @@ toggleHolidayListBtn.addEventListener("click", () => {
     : "Mostrar festivos";
 });
 
+// --- FUNCIONES DE PERSISTENCIA ---
 function saveCustomHolidays() {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(customHolidays));
 }
 
 function loadCustomHolidays() {
-  const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (data) {
-    try {
-      customHolidays = JSON.parse(data);
-    } catch {
-      customHolidays = [];
+  try {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (stored) {
+      customHolidays = JSON.parse(stored);
     }
-  } else {
+  } catch (error) {
+    console.error("Error cargando festivos personalizados:", error);
     customHolidays = [];
   }
 }
 
+// --- RENDERIZADO DE FESTIVOS OPTIMIZADO ---
 function renderHolidayList() {
-  holidayListEl.innerHTML = "";
+  // Usar DocumentFragment para mejor rendimiento
+  const fragment = document.createDocumentFragment();
   const all = [
     ...holidaysMataro.map((d) => ({ ...d, type: "Mataró" })),
     ...customHolidays.map((d) => ({ ...d, type: "Personalizado" })),
   ];
   all.sort((a, b) => a.date.localeCompare(b.date));
   const today = new Date().toISOString().split('T')[0];
+  
   for (const h of all) {
     const card = document.createElement("div");
     card.className = "festivo-card";
+    
     // Si la fecha ya ha pasado, atenuar
     if (h.date < today) {
       card.classList.add("festivo-pasado");
     }
+    
+    // Formatear fecha de manera más amigable
+    const dateObj = new Date(h.date);
+    const formattedDate = dateObj.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
     // Fecha
     const fecha = document.createElement("div");
     fecha.className = "festivo-fecha";
-    fecha.textContent = h.date;
+    fecha.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
     card.appendChild(fecha);
+    
     // Nombre
     const nombre = document.createElement("div");
     nombre.className = "festivo-nombre";
     nombre.textContent = h.name;
     card.appendChild(nombre);
-    // Acción eliminar
+    
+    // Tipo de festivo (solo para festivos personalizados)
+    if (h.type === "Personalizado") {
+      const tipo = document.createElement("div");
+      tipo.className = "festivo-tipo";
+      tipo.textContent = "🎯 Personalizado";
+      tipo.style.fontSize = "0.8rem";
+      tipo.style.color = "var(--accent-color)";
+      tipo.style.fontWeight = "600";
+      tipo.style.marginBottom = "0.5rem";
+      card.appendChild(tipo);
+    } else {
+      const tipo = document.createElement("div");
+      tipo.className = "festivo-tipo";
+      tipo.textContent = "🏛️ Oficial";
+      tipo.style.fontSize = "0.8rem";
+      tipo.style.color = "var(--secondary-color)";
+      tipo.style.fontWeight = "600";
+      tipo.style.marginBottom = "0.5rem";
+      card.appendChild(tipo);
+    }
+    
+    // Acción eliminar solo para festivos personalizados
     if (h.type === "Personalizado") {
       const actions = document.createElement("div");
       actions.className = "festivo-actions";
       const btn = document.createElement("button");
-      btn.textContent = "Eliminar";
+      btn.textContent = "🗑️ Eliminar";
       btn.className = "btn btn-secondary";
       btn.onclick = () => {
         customHolidays = customHolidays.filter((ch) => ch.date !== h.date);
@@ -256,8 +310,13 @@ function renderHolidayList() {
       actions.appendChild(btn);
       card.appendChild(actions);
     }
-    holidayListEl.appendChild(card);
+    
+    fragment.appendChild(card);
   }
+  
+  // Limpiar y añadir todo de una vez
+  holidayListEl.innerHTML = "";
+  holidayListEl.appendChild(fragment);
 }
 
 function updateHolidays() {
@@ -268,9 +327,10 @@ function updateHolidays() {
   }
   holidays = Array.from(map.values()).map((h) => h.date);
   renderHolidayList();
-  calculateBalance();
+  debouncedCalculateBalance();
 }
 
+// --- MANEJO DE FORMULARIOS ---
 addHolidayForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const date = customHolidayDate.value;
@@ -284,6 +344,7 @@ addHolidayForm.addEventListener("submit", (e) => {
   updateHolidays();
 });
 
+// --- CARGA DE FESTIVOS DE MATARÓ OPTIMIZADA ---
 async function loadMataroHolidays() {
   holidaysMataro = [];
   const year = parseInt(yearSelect.value);
@@ -305,8 +366,16 @@ async function loadMataroHolidays() {
     console.log("Usando caché para año", year, ":", holidaysMataro);
     return;
   }
+  
   try {
-    const response = await fetch(MATARO_HOLIDAYS_URL);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+    
+    const response = await fetch(MATARO_HOLIDAYS_URL, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    
     if (!response.ok) throw new Error("Error de red");
     const html = await response.text();
     const parser = new DOMParser();
@@ -342,7 +411,11 @@ async function loadMataroHolidays() {
     localStorage.setItem(MATARO_CACHE_KEY, JSON.stringify(cache));
   } catch (error) {
     holidaysMataro = [];
-    displayError("No se pudieron cargar los festivos de Mataró.");
+    if (error.name === 'AbortError') {
+      displayError("Timeout al cargar festivos de Mataró. Inténtalo de nuevo.");
+    } else {
+      displayError("No se pudieron cargar los festivos de Mataró.");
+    }
   }
 }
 
@@ -368,9 +441,6 @@ function parseSpanishDate(str, year) {
   if (month === -1) return null;
   month = (month + 1).toString().padStart(2, "0");
   const result = `${year}-${month}-${day}`;
-  
-
-  
   return result;
 }
 
@@ -386,15 +456,17 @@ function isHoliday(date, holidayList) {
   const dateString = `${yearStr}-${monthStr}-${dayStr}`;
   
   const isHoliday = holidayList.includes(dateString);
-  
-
-  
   return isHoliday;
 }
 
-// --- Rellenar selects de horas ---
+// --- RELLENAR SELECTS DE HORAS OPTIMIZADO ---
 function fillHourSelect(select, max, step) {
-  select.innerHTML = '<option value="">--</option>';
+  const fragment = document.createDocumentFragment();
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = '--';
+  fragment.appendChild(defaultOption);
+  
   for (let h = step; h <= max; h += step) {
     const value = h.toFixed(2).replace(/\.00$/, '');
     let label = value;
@@ -408,332 +480,238 @@ function fillHourSelect(select, max, step) {
     } else {
       label = `${minPart}min`;
     }
-    select.innerHTML += `<option value="${value}">${label}</option>`;
+    
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = label;
+    fragment.appendChild(option);
   }
+  
+  select.innerHTML = '';
+  select.appendChild(fragment);
 }
+
+// --- CÁLCULO DE BALANCE OPTIMIZADO ---
+const debouncedCalculateBalance = debounce(calculateBalance, 300);
 
 function calculateBalance() {
   // Validar días de la semana personalizados
   let atLeastOneDay = false;
-  let error = '';
-  const daysConfig = {};
-  weekdayIds.forEach(({ key, jsDay, label }) => {
-    if (weekdaySwitches[key].checked) {
+  let totalWeekdayHours = 0;
+  const weekdayConfig = {};
+  
+  weekdayIds.forEach(({ key, jsDay }) => {
+    const isEnabled = weekdaySwitches[key].checked;
+    const hours = parseFloat(weekdayHoursInputs[key].value) || 0;
+    
+    weekdayConfig[jsDay] = { enabled: isEnabled, hours };
+    
+    if (isEnabled && hours > 0) {
       atLeastOneDay = true;
-      const hours = parseFloat(weekdayHoursInputs[key].value);
-      if (isNaN(hours) || hours <= 0) {
-        error = `Selecciona las horas para ${label}`;
-      }
-      daysConfig[jsDay] = hours;
+      totalWeekdayHours += hours;
     }
   });
-  // Validar si hay servicio en festivos
-  const includeOffdays = includeOffdaysToggle.checked;
-  let festivoHours = 0;
-  if (includeOffdays) {
-    festivoHours = parseFloat(festivoHoursInput.value);
-    if (isNaN(festivoHours) || festivoHours <= 0) {
-      error = 'Selecciona las horas para festivos';
-    }
-  }
-  if (!atLeastOneDay && !includeOffdays) {
-    balanceValueEl.textContent = '--';
-    balanceTextEl.textContent = 'Selecciona al menos un día de la semana o servicio en festivos';
-    resultsContainer.style.display = 'none';
+  
+  if (!atLeastOneDay) {
+    resultsContainer.style.display = "none";
     return;
   }
-  if (error) {
-    balanceValueEl.textContent = '--';
-    balanceTextEl.textContent = error;
-    resultsContainer.style.display = 'none';
-    return;
-  }
-  // Validar horas asignadas al mes
-  const totalAssignedHours = parseFloat(assignedHoursInput.value);
-  if (isNaN(totalAssignedHours) || totalAssignedHours <= 0) {
-    balanceValueEl.textContent = '--';
-    balanceTextEl.textContent = 'Selecciona las horas asignadas al mes';
-    resultsContainer.style.display = 'none';
-    return;
-  }
+  
   const year = parseInt(yearSelect.value);
   const month = parseInt(monthSelect.value);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  let consumed = 0;
-  let workdaysCount = 0;
-  let offDaysCount = 0;
-
+  const assignedHours = parseFloat(assignedHoursInput.value) || 0;
+  const includeOffdays = includeOffdaysToggle.checked;
+  const offdayHours = parseFloat(festivoHoursInput.value) || 0;
   
-  for (let day = 1; day <= daysInMonth; day++) {
-    const currentDate = new Date(year, month, day);
-    const dayOfWeek = currentDate.getDay();
-    const isHolidayDay = isHoliday(currentDate, holidays);
-    
-      // Usar fecha local en lugar de UTC para evitar problemas de zona horaria
-  const yearStr = currentDate.getFullYear();
-  const monthStr = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const dayStr = String(currentDate.getDate()).padStart(2, '0');
-  const dateString = `${yearStr}-${monthStr}-${dayStr}`;
+  if (assignedHours <= 0) {
+    resultsContainer.style.display = "none";
+    return;
+  }
   
-  const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  // Calcular días del mes
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const totalDays = lastDay.getDate();
+  const today = new Date();
+  const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+  const currentDay = isCurrentMonth ? today.getDate() : totalDays;
+  
+  let workdays = 0;
+  let offDays = 0;
+  let totalMonthHours = 0;
+  let hoursSoFar = 0;
+  
+  // Calcular días laborables y festivos
+  for (let day = 1; day <= totalDays; day++) {
+    const date = new Date(year, month, day);
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const isHolidayDay = isHoliday(date, holidays);
     
-    if (isHolidayDay && includeOffdays) {
-      consumed += festivoHours;
-      offDaysCount++;
-
-    } else if (!isHolidayDay && daysConfig.hasOwnProperty(dayOfWeek)) {
-      consumed += daysConfig[dayOfWeek];
-      workdaysCount++;
-
-    } else if (isHolidayDay && !includeOffdays) {
-      offDaysCount++;
-
+    if (isWeekend || isHolidayDay) {
+      offDays++;
+      if (includeOffdays && offdayHours > 0) {
+        totalMonthHours += offdayHours;
+        if (day <= currentDay) {
+          hoursSoFar += offdayHours;
+        }
+      }
     } else {
-      // Días que no son festivos y no están en la configuración (fines de semana normales)
-      offDaysCount++;
-
+      const weekdayConfig = weekdayConfig[dayOfWeek];
+      if (weekdayConfig && weekdayConfig.enabled && weekdayConfig.hours > 0) {
+        workdays++;
+        totalMonthHours += weekdayConfig.hours;
+        if (day <= currentDay) {
+          hoursSoFar += weekdayConfig.hours;
+        }
+      }
     }
   }
+  
   // Calcular balance
-  const balance = totalAssignedHours - consumed;
-  // Actualizar UI con los resultados
-  totalMonthHours.textContent = `${consumed.toFixed(2)} h`;
-  // Calcular horas realizadas hasta hoy
-  const now = new Date();
-  const today =
-    year === now.getFullYear() && month === now.getMonth()
-      ? now.getDate()
-      : daysInMonth;
-  let consumedSoFar = 0;
-  for (let day = 1; day <= today; day++) {
-    const currentDate = new Date(year, month, day);
-    const dayOfWeek = currentDate.getDay();
-    const isHolidayDay = isHoliday(currentDate, holidays);
-    if (isHolidayDay && includeOffdays) {
-      consumedSoFar += festivoHours;
-    } else if (!isHolidayDay && daysConfig.hasOwnProperty(dayOfWeek)) {
-      consumedSoFar += daysConfig[dayOfWeek];
-    }
-  }
-  hoursSoFar.textContent = `${consumedSoFar.toFixed(2)} h`;
-  workdaysEl.textContent = `${workdaysCount}`;
-  offDaysEl.textContent = `${offDaysCount}`;
-  balanceValueEl.textContent = `${balance.toFixed(2)} h`;
-  if (balance >= 0) {
-    balanceValueEl.style.color = '#28a745';
-    balanceTextEl.textContent = 'Horas a tu favor este mes';
-  } else {
-    balanceValueEl.style.color = '#dc3545';
-    balanceTextEl.textContent = 'Horas en contra este mes';
-  }
-  // Títulos dinámicos
-  const monthNames = [
-    'Enero',
-    'Febrero',
-    'Marzo',
-    'Abril',
-    'Mayo',
-    'Junio',
-    'Julio',
-    'Agosto',
-    'Septiembre',
-    'Octubre',
-    'Noviembre',
-    'Diciembre',
-  ];
-  monthNameTitle.textContent = monthNames[month];
+  const balance = hoursSoFar - assignedHours;
+  
+  // Actualizar UI
+  totalMonthHoursTitle.textContent = `🗓️ Horas para ${getMonthName(month)} ${year}`;
+  monthNameTitle.textContent = getMonthName(month);
   yearTitle.textContent = year;
-  resultsContainer.style.display = 'block';
+  totalMonthHours.textContent = `${totalMonthHours.toFixed(2)} horas`;
+  hoursSoFar.textContent = `${hoursSoFar.toFixed(2)} horas`;
+  workdaysEl.textContent = `${workdays} días`;
+  offDaysEl.textContent = `${offDays} días`;
+  
+  // Formatear balance
+  const absBalance = Math.abs(balance);
+  balanceValueEl.textContent = `${balance >= 0 ? '+' : '-'}${absBalance.toFixed(2)} horas`;
+  
+  if (balance > 0) {
+    balanceTextEl.textContent = "¡Estás por delante! 🎉";
+    balanceValueEl.style.color = "var(--success-color)";
+  } else if (balance < 0) {
+    balanceTextEl.textContent = "Te faltan horas por completar 📈";
+    balanceValueEl.style.color = "var(--danger-color)";
+  } else {
+    balanceTextEl.textContent = "¡Perfecto! Estás al día ✅";
+    balanceValueEl.style.color = "var(--secondary-color)";
+  }
+  
+  resultsContainer.style.display = "block";
 }
 
+function getMonthName(month) {
+  const months = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+  return months[month];
+}
+
+// --- POBLAR SELECTOR DE AÑOS ---
 function populateYearSelector() {
-  yearSelect.innerHTML = "";
   const currentYear = new Date().getFullYear();
-  for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+  yearSelect.innerHTML = "";
+  for (let year = currentYear - 2; year <= currentYear + 2; year++) {
     const option = document.createElement("option");
-    option.value = i;
-    option.textContent = i;
+    option.value = year;
+    option.textContent = year;
+    if (year === currentYear) option.selected = true;
     yearSelect.appendChild(option);
   }
 }
 
+// --- MANEJO DE LOADING ---
 function showLoading(show) {
+  loadingEl.style.display = show ? "block" : "none";
   if (show) {
-    loadingEl.style.display = "";
-  } else {
-    loadingEl.style.display = "none";
+    resultsContainer.style.display = "none";
   }
 }
 
+// --- INICIALIZACIÓN DE LA APLICACIÓN ---
 async function initializeApp() {
-  populateYearSelector();
-  const now = new Date();
-  yearSelect.value = now.getFullYear();
-  monthSelect.value = now.getMonth();
-  loadCustomHolidays();
-  showLoading(true);
-  errorContainer.innerHTML = "";
-  await loadMataroHolidays();
-  updateHolidays();
-  showLoading(false);
-  
-  // Asegurar que los campos de horas estén ocultos por defecto
-  weekdayIds.forEach(({ key }) => {
-    weekdayHoursInputs[key].style.display = 'none';
-  });
-  festivoHoursGroup.style.display = 'none';
+  try {
+    populateYearSelector();
+    loadCustomHolidays();
+    
+    // Rellenar selects de horas
+    fillHourSelect(assignedHoursInput, 24, 0.25);
+    fillHourSelect(festivoHoursInput, 24, 0.25);
+    weekdayIds.forEach(({ key }) => {
+      fillHourSelect(weekdayHoursInputs[key], 24, 0.25);
+    });
+    
+    // Inicializar días de la semana
+    initializeWeekdays();
+    
+    // Cargar festivos de Mataró
+    showLoading(true);
+    await loadMataroHolidays();
+    showLoading(false);
+    
+    // Actualizar festivos y calcular balance inicial
+    updateHolidays();
+    
+    // Event listeners para controles principales
+    yearSelect.addEventListener("change", async () => {
+      showLoading(true);
+      await loadMataroHolidays();
+      showLoading(false);
+      updateHolidays();
+    });
+    
+    monthSelect.addEventListener("change", debouncedCalculateBalance);
+    assignedHoursInput.addEventListener("change", debouncedCalculateBalance);
+    festivoHoursInput.addEventListener("change", debouncedCalculateBalance);
+    
+    // Event listeners para botones
+    calculateBtn.addEventListener("click", calculateBalance);
+    resetBtn.addEventListener("click", resetApp);
+    clearCacheBtn.addEventListener("click", () => {
+      localStorage.removeItem(MATARO_CACHE_KEY);
+      alert("Caché limpiado. Los festivos se recargarán en la próxima consulta.");
+    });
+    
+  } catch (error) {
+    console.error("Error inicializando la aplicación:", error);
+    showLoading(false);
+    displayError("Error al inicializar la aplicación.");
+  }
 }
-
-calculateBtn.addEventListener("click", calculateBalance);
-assignedHoursInput.addEventListener("input", calculateBalance);
-yearSelect.addEventListener("change", async () => {
-  showLoading(true);
-  await loadMataroHolidays();
-  updateHolidays();
-  showLoading(false);
-});
-monthSelect.addEventListener("change", calculateBalance);
-includeOffdaysToggle.addEventListener("change", calculateBalance);
-
-// Guardar referencias a SlimSelect para año y mes
-let slimYear = null;
-let slimMonth = null;
-
-const mainForm = document.getElementById("mainForm");
 
 async function resetApp() {
-  // Limpiar localStorage
-  localStorage.removeItem(LOCAL_STORAGE_KEY);
-  localStorage.removeItem(MATARO_CACHE_KEY);
-  // Limpiar arrays en memoria
-  holidaysMataro = [];
-  customHolidays = [];
-  holidays = [];
-  // Rellenar el selector de año
-  populateYearSelector();
-  // Seleccionar año y mes actuales (asegurando que existen en el selector)
-  const now = new Date();
-  if ([...yearSelect.options].some(opt => opt.value == now.getFullYear())) {
-    yearSelect.value = now.getFullYear();
-  }
-  if ([...monthSelect.options].some(opt => opt.value == now.getMonth())) {
-    monthSelect.value = now.getMonth();
-  }
-  // Limpiar los campos de horas (poner a vacío)
-  assignedHoursInput.value = "";
-  // Checkbox desactivado por defecto
-  includeOffdaysToggle.checked = false;
-  includeOffdaysToggle.defaultChecked = false;
-  // Limpiar campos de festivos personalizados
-  if (customHolidayDate) customHolidayDate.value = "";
-  if (customHolidayName) customHolidayName.value = "";
-  // Limpiar días de la semana
-  weekdayIds.forEach(({ key }) => {
-    weekdaySwitches[key].checked = false;
-    weekdayHoursInputs[key].value = '';
-    weekdayHoursInputs[key].style.display = 'none';
-    weekdayHoursInputs[key].classList.add('hidden');
-    weekdayHoursInputs[key].setAttribute('inert', '');
-    // Destruir SlimSelect si existe
-    if (slimSelectInstances[key]) {
-      slimSelectInstances[key].destroy();
-      slimSelectInstances[key] = null;
-    }
-    // Forzar ocultación de elementos SlimSelect
-    const slimElements = document.querySelectorAll(`#hours-${key} + .ss-main, #hours-${key} ~ .ss-main`);
-    slimElements.forEach(el => {
-      el.style.display = 'none';
-      el.style.visibility = 'hidden';
-      el.style.opacity = '0';
-      el.style.height = '0';
-      el.style.overflow = 'hidden';
-      el.setAttribute('inert', '');
+  if (confirm("¿Estás seguro de que quieres resetear toda la configuración?")) {
+    // Resetear switches
+    includeOffdaysToggle.checked = false;
+    weekdayIds.forEach(({ key }) => {
+      weekdaySwitches[key].checked = false;
+      weekdayHoursInputs[key].value = "";
+      weekdayHoursInputs[key].style.display = "none";
+      weekdayHoursInputs[key].classList.add("hidden");
     });
-  });
-  // Limpiar campo de horas de festivo
-  festivoHoursInput.value = '';
-  festivoHoursGroup.style.display = 'none';
-  festivoHoursGroup.classList.add('hidden');
-  festivoHoursGroup.setAttribute('inert', '');
-  festivoHoursInput.setAttribute('inert', '');
-  // Destruir SlimSelect de festivo si existe
-  if (slimSelectInstances['festivo']) {
-    slimSelectInstances['festivo'].destroy();
-    slimSelectInstances['festivo'] = null;
+    
+    // Resetear festivos personalizados
+    customHolidays = [];
+    saveCustomHolidays();
+    
+    // Resetear controles principales
+    assignedHoursInput.value = "";
+    festivoHoursInput.value = "";
+    festivoHoursGroup.style.display = "none";
+    
+    // Ocultar resultados
+    resultsContainer.style.display = "none";
+    
+    // Limpiar errores
+    errorContainer.innerHTML = "";
+    
+    // Actualizar
+    updateHolidays();
   }
-  // Forzar ocultación de elementos SlimSelect de festivo
-  const slimElements = festivoHoursGroup.querySelectorAll('.ss-main');
-  slimElements.forEach(el => {
-    el.style.display = 'none';
-    el.style.visibility = 'hidden';
-    el.style.opacity = '0';
-    el.style.height = '0';
-    el.style.overflow = 'hidden';
-    el.setAttribute('inert', '');
-  });
-  // Recargar festivos y refrescar UI
-  loadCustomHolidays();
-  showLoading(true);
-  errorContainer.innerHTML = "";
-  await loadMataroHolidays();
-  updateHolidays();
-  showLoading(false);
-  // Ocultar resultados y limpiar textos
-  resultsContainer.style.display = "none";
-  balanceValueEl.textContent = "--";
-  balanceTextEl.textContent = "Introduce horas asignadas válidas";
-  totalMonthHours.textContent = "--";
-  hoursSoFar.textContent = "--";
-  workdaysEl.textContent = "--";
-  offDaysEl.textContent = "--";
-  monthNameTitle.textContent = "";
-  yearTitle.textContent = "";
 }
 
-resetBtn.addEventListener("click", resetApp);
-clearCacheBtn.addEventListener("click", async () => {
-  // Limpiar todo el localStorage relacionado con festivos
-  localStorage.removeItem(MATARO_CACHE_KEY);
-  localStorage.removeItem(LOCAL_STORAGE_KEY);
-  
-  // Limpiar arrays en memoria
-  holidaysMataro = [];
-  customHolidays = [];
-  holidays = [];
-  
-  showLoading(true);
-  await loadMataroHolidays();
-  updateHolidays();
-  showLoading(false);
-  
-  console.log("Festivos cargados:", holidaysMataro);
-  console.log("Festivos totales:", holidays);
-  
-  // Mostrar mensaje en la consola en lugar de alerta
-  console.log("✅ Caché de festivos limpiado completamente. Los festivos se han recargado desde la web de Mataró.");
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Horas asignadas al mes: hasta 300h
-  fillHourSelect(document.getElementById('totalHours'), 300, 0.25);
-  // Horas de festivo: hasta 12h
-  fillHourSelect(document.getElementById('hours-festivo'), 12, 0.25);
-  // Horas de cada día: hasta 12h
-  ['mon','tue','wed','thu','fri','sat','sun'].forEach(key => {
-    fillHourSelect(document.getElementById(`hours-${key}`), 12, 0.25);
-  });
-  
-  // Asegurar que los campos estén ocultos por defecto
-  weekdayIds.forEach(({ key }) => {
-    weekdayHoursInputs[key].style.display = 'none';
-    weekdayHoursInputs[key].classList.add('hidden');
-    weekdayHoursInputs[key].setAttribute('inert', '');
-  });
-  festivoHoursGroup.style.display = 'none';
-  festivoHoursGroup.classList.add('hidden');
-  festivoHoursGroup.setAttribute('inert', '');
-  festivoHoursInput.setAttribute('inert', '');
-  
-  // Inicializar la app solo después de rellenar los selects
-  resetApp();
-});
+// --- INICIALIZAR CUANDO EL DOM ESTÉ LISTO ---
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}

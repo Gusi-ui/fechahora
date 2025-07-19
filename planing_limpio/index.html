@@ -3,32 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Calculadora de horas de servicio para planificar tu trabajo mensual" />
+    <meta name="theme-color" content="#6366f1" />
+    
     <title>Calculadora de Horas de Servicio</title>
-    <link rel="stylesheet" href="css/sheet.css" />
+    
+    <!-- Preload recursos críticos -->
+    <link rel="preload" href="css/sheet.css" as="style" />
+    <link rel="preload" href="main.js" as="script" />
+    
+    <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="96x96"
-      href="favicons/favicon-96x96.png"
-    />
+    <link rel="icon" type="image/png" sizes="96x96" href="favicons/favicon-96x96.png" />
     <link rel="icon" type="image/x-icon" href="favicons/favicon.ico" />
     <link rel="apple-touch-icon" href="favicons/apple-touch-icon.png" />
     <link rel="manifest" href="favicons/site.webmanifest" />
-    <script src="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.js"></script>
-    <link
-      href="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.css"
-      rel="stylesheet"
-    />
+    
+    <!-- CSS principal -->
+    <link rel="stylesheet" href="css/sheet.css" />
+    
+    <!-- SlimSelect - Cargado de forma asíncrona -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.css" /></noscript>
   </head>
   <body>
     <div class="container">
       <!-- Cabecera principal -->
       <div class="header">
         <h1>🕒 Calculadora de Horas de Servicio</h1>
-        <p>Calcula el balance de horas mensuales según tu plan.</p>
+        <p>Calcula el balance de horas mensuales según tu plan de trabajo</p>
       </div>
+
+      <!-- Formulario principal -->
       <form id="mainForm">
+        <!-- Controles superiores -->
         <div class="top-controls-v2">
           <div class="styled-select-group">
             <label for="year">Año</label>
@@ -37,6 +45,7 @@
               <span class="select-arrow"></span>
             </div>
           </div>
+          
           <div class="styled-select-group">
             <label for="month">Mes</label>
             <div class="select-wrapper">
@@ -57,6 +66,7 @@
               <span class="select-arrow"></span>
             </div>
           </div>
+          
           <div class="assigned-hours-field">
             <label for="totalHours">Horas asignadas al mes</label>
             <select id="totalHours" class="assigned-hours-input-v2 big-hours slim-square" required>
@@ -66,16 +76,17 @@
           </div>
         </div>
 
+        <!-- Configuración de días de la semana -->
         <div class="weekdays-settings">
-          <label style="font-weight:bold; margin-bottom: 0.5rem; display:block;">Festivos:</label>
-          <div class="weekdays-list" style="width: 100%;">
-            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+          <label>🎉 Festivos y fines de semana</label>
+          <div class="weekdays-list">
+            <div class="weekday-item">
               <label>Contabilizar</label>
               <label class="switch">
                 <input type="checkbox" id="includeOffdays" />
                 <span class="slider round"></span>
               </label>
-              <div id="festivo-hours-group" style="display: none; width: 140px; margin-top: 0.3rem;">
+              <div id="festivo-hours-group" style="display: none; width: 100%; margin-top: 0.3rem;">
                 <select id="hours-festivo" class="weekday-hours">
                   <option value="">--</option>
                   <!-- Opciones generadas por JS -->
@@ -83,81 +94,88 @@
               </div>
             </div>
           </div>
-          <label style="font-weight:bold; margin-bottom: 0.5rem; display:block;">Días de la semana con servicio:</label>
-          <div class="weekdays-list" style="width: 100%;">
-            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+          
+          <label>📅 Días de la semana con servicio</label>
+          <div class="weekdays-list">
+            <div class="weekday-item">
               <label>Lunes</label>
               <label class="switch">
                 <input type="checkbox" id="weekday-mon" />
                 <span class="slider round"></span>
               </label>
-              <select id="hours-mon" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+              <select id="hours-mon" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 100%; margin-top: 0.3rem; display: none;" required>
                 <option value="">--</option>
                 <!-- Opciones generadas por JS -->
               </select>
             </div>
-            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+            
+            <div class="weekday-item">
               <label>Martes</label>
               <label class="switch">
                 <input type="checkbox" id="weekday-tue" />
                 <span class="slider round"></span>
               </label>
-              <select id="hours-tue" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+              <select id="hours-tue" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 100%; margin-top: 0.3rem; display: none;" required>
                 <option value="">--</option>
                 <!-- Opciones generadas por JS -->
               </select>
             </div>
-            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+            
+            <div class="weekday-item">
               <label>Miércoles</label>
               <label class="switch">
                 <input type="checkbox" id="weekday-wed" />
                 <span class="slider round"></span>
               </label>
-              <select id="hours-wed" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+              <select id="hours-wed" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 100%; margin-top: 0.3rem; display: none;" required>
                 <option value="">--</option>
                 <!-- Opciones generadas por JS -->
               </select>
             </div>
-            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+            
+            <div class="weekday-item">
               <label>Jueves</label>
               <label class="switch">
                 <input type="checkbox" id="weekday-thu" />
                 <span class="slider round"></span>
               </label>
-              <select id="hours-thu" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+              <select id="hours-thu" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 100%; margin-top: 0.3rem; display: none;" required>
                 <option value="">--</option>
                 <!-- Opciones generadas por JS -->
               </select>
             </div>
-            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+            
+            <div class="weekday-item">
               <label>Viernes</label>
               <label class="switch">
                 <input type="checkbox" id="weekday-fri" />
                 <span class="slider round"></span>
               </label>
-              <select id="hours-fri" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+              <select id="hours-fri" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 100%; margin-top: 0.3rem; display: none;" required>
                 <option value="">--</option>
                 <!-- Opciones generadas por JS -->
               </select>
             </div>
-            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+            
+            <div class="weekday-item">
               <label>Sábado</label>
               <label class="switch">
                 <input type="checkbox" id="weekday-sat" />
                 <span class="slider round"></span>
               </label>
-              <select id="hours-sat" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+              <select id="hours-sat" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 100%; margin-top: 0.3rem; display: none;" required>
                 <option value="">--</option>
                 <!-- Opciones generadas por JS -->
               </select>
             </div>
-            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+            
+            <div class="weekday-item">
               <label>Domingo</label>
               <label class="switch">
                 <input type="checkbox" id="weekday-sun" />
                 <span class="slider round"></span>
               </label>
-              <select id="hours-sun" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+              <select id="hours-sun" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 100%; margin-top: 0.3rem; display: none;" required>
                 <option value="">--</option>
                 <!-- Opciones generadas por JS -->
               </select>
@@ -165,31 +183,31 @@
           </div>
         </div>
 
-        <div class="main-action" style="display: flex; justify-content: center; gap: 1rem; align-items: center;">
+        <!-- Botones de acción -->
+        <div class="main-action">
           <button class="btn" id="calculateBtn" type="button">Calcular Balance</button>
           <button class="btn btn-secondary" id="resetBtn" type="button">Reset</button>
           <button class="btn btn-secondary" id="clearCacheBtn" type="button">Limpiar Caché</button>
         </div>
       </form>
 
+      <!-- Loading -->
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <p>Cargando datos de festivos...</p>
       </div>
 
+      <!-- Mensajes de error -->
       <div id="error-container"></div>
 
       <!-- Resultados -->
-      <div
-        id="results-container"
-        class="results-container"
-        style="display: none"
-      >
+      <div id="results-container" class="results-container" style="display: none">
         <div class="summary-card">
           <h2>📊 Balance del Mes</h2>
           <p class="balance-value" id="balanceValue">0.00 horas</p>
           <p class="balance-text" id="balanceText">--</p>
         </div>
+        
         <div class="details-grid">
           <div class="detail-card">
             <h3 id="totalMonthHoursTitle">
@@ -198,28 +216,34 @@
             </h3>
             <p id="totalMonthHours">--</p>
           </div>
+          
           <div class="detail-card">
             <h3>✅ Horas realizadas hasta hoy</h3>
             <p id="hoursSoFar">--</p>
           </div>
+          
           <div class="detail-card">
             <h3>💼 Días laborables</h3>
             <p id="workdays">--</p>
           </div>
+          
           <div class="detail-card">
             <h3>🎉 Fines de semana / Festivos</h3>
             <p id="offDays">--</p>
           </div>
         </div>
       </div>
+
       <!-- Festivos personalizados -->
       <div class="results-container">
         <button id="toggleHolidayListBtn" class="btn" type="button">
           🎉 Mostrar festivos
         </button>
+        
         <div id="holidayListContainer" class="holiday-list-container">
           <h3>🎈 Festivos usados en el cálculo</h3>
           <ul id="holidayList"></ul>
+          
           <form id="addHolidayForm" class="add-holiday-form">
             <input type="date" id="customHolidayDate" required />
             <input
@@ -232,14 +256,47 @@
           </form>
         </div>
       </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-content">
+          <span>Hecho con</span>
+          <span class="heart-icon">❤️</span>
+          <span>por Gusi</span>
+        </div>
+      </footer>
     </div>
-    <script src="main.js?v=2.0"></script>
+
+    <!-- Scripts optimizados -->
     <script>
-      // Inicializar SlimSelect solo para los selects principales
-      document.addEventListener("DOMContentLoaded", function () {
-        new SlimSelect({ select: "#year", settings: { showSearch: false } });
-        new SlimSelect({ select: "#month", settings: { showSearch: false } });
-        new SlimSelect({ select: "#totalHours", settings: { showSearch: false } });
+      // Cargar SlimSelect de forma asíncrona
+      function loadSlimSelect() {
+        return new Promise((resolve, reject) => {
+          if (window.SlimSelect) {
+            resolve(window.SlimSelect);
+            return;
+          }
+          
+          const script = document.createElement('script');
+          script.src = 'https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.js';
+          script.onload = () => resolve(window.SlimSelect);
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+      
+      // Inicializar aplicación cuando SlimSelect esté listo
+      loadSlimSelect().then(() => {
+        // Cargar el script principal
+        const mainScript = document.createElement('script');
+        mainScript.src = 'main.js?v=2.1';
+        document.body.appendChild(mainScript);
+      }).catch(error => {
+        console.error('Error cargando SlimSelect:', error);
+        // Cargar script principal de todas formas
+        const mainScript = document.createElement('script');
+        mainScript.src = 'main.js?v=2.1';
+        document.body.appendChild(mainScript);
       });
     </script>
   </body>
