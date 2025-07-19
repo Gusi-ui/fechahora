@@ -884,6 +884,44 @@ body .ss-list {
   }
 }
 
+@media (min-width: 768px) {
+  .weekdays-list {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: flex-end;
+  }
+  .weekday-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start;
+    background: #fff;
+    border-radius: 0.5em;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    padding: 0.5em 1em;
+    min-width: 120px;
+    gap: 0.5em;
+  }
+  .weekday-item label {
+    margin: 0 0.5em 0 0;
+    min-width: 60px;
+    flex: 0 0 auto;
+  }
+  .weekday-item .switch {
+    margin-right: 0.5em;
+    flex: 0 0 auto;
+  }
+  .weekday-hours {
+    min-width: 80px;
+    max-width: 100px;
+    margin: 0;
+    flex: 1 1 auto;
+    display: inline-block;
+  }
+}
+
 @media (max-width: 767px) {
   .weekdays-list {
     display: flex;
@@ -956,3 +994,282 @@ body .ss-list {
   text-align: right;
   margin-top: 0.2em;
 }
+
+.weekdays-settings {
+  margin-top: 1.5em;
+  padding: 1.5em 1em;
+  border: 2px solid #e9ecef;
+  border-radius: 1em;
+  background: #f8f9fa;
+}
+@media (min-width: 768px) {
+  .weekdays-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2em;
+    width: 100%;
+  }
+  .weekday-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: none;
+    border-radius: 0.5em;
+    box-shadow: none;
+    padding: 0.2em 1.5em;
+    min-width: 180px;
+    width: 100%;
+    gap: 0.5em;
+    border: none;
+  }
+  .weekday-item label {
+    margin: 0 0.5em 0 0;
+    min-width: 70px;
+    flex: 1 1 30%;
+    text-align: left;
+  }
+  .weekday-item .switch {
+    margin-right: 1em;
+    flex: 0 0 auto;
+    justify-self: center;
+  }
+  .weekday-hours {
+    min-width: 90px;
+    max-width: 120px;
+    margin: 0;
+    flex: 1 1 30%;
+    display: inline-block;
+    text-align: right;
+  }
+  
+  /* Espacio reservado para evitar temblor visual */
+  .weekday-item {
+    min-height: 60px;
+    align-items: flex-start !important;
+  }
+}
+
+.weekdays-settings .input-group.toggle-group {
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+}
+
+/* El campo de festivos ahora usa las mismas reglas que weekday-hours */
+#hours-festivo {
+  width: 140px;
+  margin-top: 0.3rem;
+}
+
+/* Aumentar ancho de los campos de horas para evitar temblor */
+.weekday-hours {
+  width: 140px !important;
+  min-width: 140px !important;
+}
+
+/* Reglas para forzar ocultación de campos de horas */
+.weekday-hours.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#festivo-hours-group.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ocultar elementos SlimSelect cuando el contenedor esté oculto */
+.weekday-hours.hidden + .ss-main,
+#festivo-hours-group.hidden .ss-main {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Reglas para elementos con atributo inert */
+[inert] {
+  pointer-events: none !important;
+  user-select: none !important;
+  cursor: default !important;
+}
+
+[inert] * {
+  pointer-events: none !important;
+  user-select: none !important;
+  cursor: default !important;
+}
+
+/* Mejorar legibilidad de SlimSelect para textos largos */
+.ss-main .ss-single-selected .ss-option-text,
+.ss-content .ss-option .ss-option-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+
+/* Asegurar que los desplegables tengan suficiente ancho */
+.ss-content {
+  min-width: 160px !important;
+  max-width: 200px !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+.ss-content .ss-option {
+  padding: 8px 12px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Mejorar el espaciado en los elementos seleccionados */
+.ss-main .ss-single-selected {
+  padding: 8px 12px !important;
+  min-height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Asegurar que los textos largos se muestren correctamente */
+.ss-main .ss-single-selected .ss-option-text {
+  font-size: 0.9em !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: calc(100% - 20px) !important;
+}
+
+/* Mejorar transiciones y evitar temblor visual */
+.weekday-item {
+  transition: all 0.2s ease-in-out;
+}
+
+.weekday-hours {
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+/* Asegurar que los elementos SlimSelect tengan el ancho correcto */
+.ss-main {
+  min-width: 140px !important;
+  width: 140px !important;
+}
+
+.ss-main .ss-single-selected {
+  min-width: 140px !important;
+  width: 140px !important;
+}
+
+/* Mejorar la legibilidad de los textos en los desplegables */
+.ss-content .ss-option .ss-option-text {
+  font-size: 0.85em !important;
+  padding: 6px 8px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+}
+
+/* Asegurar que SlimSelect tenga scroll y textos legibles */
+.ss-content {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.ss-content .ss-option {
+  padding: 8px 12px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Mejorar la legibilidad de los textos en los desplegables */
+.ss-content .ss-option .ss-option-text {
+  font-size: 0.9em !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  flex: 1 !important;
+}
+
+/* Asegurar que el scroll sea visible */
+.ss-content::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.ss-content::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 4px !important;
+}
+
+.ss-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1 !important;
+  border-radius: 4px !important;
+}
+
+.ss-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8 !important;
+}
+
+/* Aplicar las mismas reglas a los campos principales (mes y horas asignadas) */
+#month,
+#totalHours {
+  min-width: 140px !important;
+  width: 140px !important;
+}
+
+/* Asegurar que los elementos SlimSelect de los campos principales tengan el ancho correcto */
+#month + .ss-main,
+#totalHours + .ss-main {
+  min-width: 140px !important;
+  width: 140px !important;
+}
+
+#month + .ss-main .ss-single-selected,
+#totalHours + .ss-main .ss-single-selected {
+  min-width: 140px !important;
+  width: 140px !important;
+}
+
+/* Sobrescribir reglas específicas para styled-select y big-hours */
+.styled-select#month,
+.styled-select#totalHours,
+.big-hours#totalHours {
+  min-width: 140px !important;
+  width: 140px !important;
+  max-width: 140px !important;
+}
+
+/* Aplicar las mismas reglas de scroll y legibilidad a todos los SlimSelect */
+.ss-main + .ss-content {
+  min-width: 160px !important;
+  max-width: 200px !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+

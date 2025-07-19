@@ -3,7 +3,7 @@ const MATARO_HOLIDAYS_URL =
   "https://corsproxy.io/?https://www.mataro.cat/es/la-ciudad/festivos-locales";
 const LOCAL_STORAGE_KEY = "customHolidays";
 const MATARO_CACHE_KEY = "mataroHolidaysCache";
-const MATARO_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 horas en ms
+const MATARO_CACHE_TTL = 0; // Forzar recarga inmediata (0 ms)
 
 // --- ESTADO DE LA APLICACIÓN ---
 let holidaysMataro = [];
@@ -29,6 +29,7 @@ const offDaysEl = document.getElementById("offDays");
 const balanceValueEl = document.getElementById("balanceValue");
 const balanceTextEl = document.getElementById("balanceText");
 const resetBtn = document.getElementById("resetBtn");
+const clearCacheBtn = document.getElementById("clearCacheBtn");
 
 // Festivos personalizados
 const holidayListEl = document.getElementById("holidayList");
@@ -55,21 +56,67 @@ weekdayIds.forEach(({ key }) => {
   weekdaySwitches[key] = document.getElementById(`weekday-${key}`);
   weekdayHoursInputs[key] = document.getElementById(`hours-${key}`);
   weekdayHoursInputs[key].classList.add('slim-square');
+  
   // Mostrar/ocultar input de horas según el interruptor
   weekdaySwitches[key].addEventListener('change', () => {
+    const input = weekdayHoursInputs[key];
+    
     if (weekdaySwitches[key].checked) {
-      weekdayHoursInputs[key].style.display = '';
+      // Mostrar el campo
+      input.style.display = 'block';
+      input.classList.remove('hidden');
+      input.removeAttribute('inert');
+      input.removeAttribute('aria-hidden');
+      
       // Reinicializar SlimSelect si no existe
       if (!slimSelectInstances[key]) {
-        slimSelectInstances[key] = new SlimSelect({ select: `#hours-${key}`, settings: { showSearch: false } });
+        slimSelectInstances[key] = new SlimSelect({ 
+          select: `#hours-${key}`, 
+          settings: { showSearch: false } 
+        });
       }
-      weekdayHoursInputs[key].focus();
+      
+      // Forzar que SlimSelect se muestre
+      setTimeout(() => {
+        const slimElement = input.nextElementSibling;
+        if (slimElement && slimElement.classList.contains('ss-main')) {
+          slimElement.style.display = 'block';
+          slimElement.style.visibility = 'visible';
+          slimElement.style.opacity = '1';
+          slimElement.style.height = 'auto';
+          slimElement.style.overflow = 'visible';
+          slimElement.removeAttribute('inert');
+        }
+      }, 10);
+      
     } else {
-      weekdayHoursInputs[key].style.display = 'none';
-      weekdayHoursInputs[key].value = '';
+      // Ocultar el campo
+      input.style.display = 'none';
+      input.classList.add('hidden');
+      input.setAttribute('inert', '');
+      input.value = '';
+      
+      // Destruir SlimSelect si existe
+      if (slimSelectInstances[key]) {
+        slimSelectInstances[key].destroy();
+        slimSelectInstances[key] = null;
+      }
+      
+      // Ocultar elementos SlimSelect
+      const slimElements = document.querySelectorAll(`#hours-${key} + .ss-main, #hours-${key} ~ .ss-main`);
+      slimElements.forEach(el => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        el.style.opacity = '0';
+        el.style.height = '0';
+        el.style.overflow = 'hidden';
+        el.setAttribute('inert', '');
+      });
     }
+    
     calculateBalance();
   });
+  
   // Recalcular al cambiar horas
   weekdayHoursInputs[key].addEventListener('change', calculateBalance);
 });
@@ -81,15 +128,60 @@ festivoHoursInput.classList.add('slim-square');
 // Mostrar/ocultar input de horas de festivo según el interruptor
 includeOffdaysToggle.addEventListener('change', () => {
   if (includeOffdaysToggle.checked) {
-    festivoHoursGroup.style.display = '';
+    // Mostrar el campo
+    festivoHoursGroup.style.display = 'block';
+    festivoHoursGroup.classList.remove('hidden');
+    festivoHoursGroup.removeAttribute('inert');
+    festivoHoursInput.removeAttribute('inert');
+    festivoHoursInput.removeAttribute('aria-hidden');
+    
     // Reinicializar SlimSelect si no existe
     if (!slimSelectInstances['festivo']) {
-      slimSelectInstances['festivo'] = new SlimSelect({ select: '#hours-festivo', settings: { showSearch: false } });
+      slimSelectInstances['festivo'] = new SlimSelect({ 
+        select: '#hours-festivo', 
+        settings: { showSearch: false } 
+      });
     }
+    
+    // Forzar que SlimSelect se muestre
+    setTimeout(() => {
+      const slimElement = festivoHoursGroup.querySelector('.ss-main');
+      if (slimElement) {
+        slimElement.style.display = 'block';
+        slimElement.style.visibility = 'visible';
+        slimElement.style.opacity = '1';
+        slimElement.style.height = 'auto';
+        slimElement.style.overflow = 'visible';
+        slimElement.removeAttribute('inert');
+      }
+    }, 10);
+    
   } else {
+    // Ocultar el campo
     festivoHoursGroup.style.display = 'none';
+    festivoHoursGroup.classList.add('hidden');
+    festivoHoursGroup.setAttribute('inert', '');
+    festivoHoursInput.setAttribute('inert', '');
     festivoHoursInput.value = '';
+    
+    // Destruir SlimSelect si existe
+    if (slimSelectInstances['festivo']) {
+      slimSelectInstances['festivo'].destroy();
+      slimSelectInstances['festivo'] = null;
+    }
+    
+    // Ocultar elementos SlimSelect
+    const slimElements = festivoHoursGroup.querySelectorAll('.ss-main');
+    slimElements.forEach(el => {
+      el.style.display = 'none';
+      el.style.visibility = 'hidden';
+      el.style.opacity = '0';
+      el.style.height = '0';
+      el.style.overflow = 'hidden';
+      el.setAttribute('inert', '');
+    });
   }
+  
   calculateBalance();
 });
 
@@ -195,6 +287,8 @@ addHolidayForm.addEventListener("submit", (e) => {
 async function loadMataroHolidays() {
   holidaysMataro = [];
   const year = parseInt(yearSelect.value);
+  console.log("Cargando festivos para año:", year);
+  
   let cache = localStorage.getItem(MATARO_CACHE_KEY);
   if (cache) {
     try {
@@ -208,6 +302,7 @@ async function loadMataroHolidays() {
   const now = Date.now();
   if (cache[year] && now - cache[year].timestamp < MATARO_CACHE_TTL) {
     holidaysMataro = cache[year].holidays;
+    console.log("Usando caché para año", year, ":", holidaysMataro);
     return;
   }
   try {
@@ -236,7 +331,11 @@ async function loadMataroHolidays() {
         const rawDate = cells[0].textContent.trim();
         const name = cells[1] ? cells[1].textContent.trim() : "Mataró";
         const date = parseSpanishDate(rawDate, year);
-        if (date) holidaysMataro.push({ date, name });
+        console.log(`Procesando festivo: "${rawDate}" -> "${name}" -> ${date}`);
+        if (date) {
+          holidaysMataro.push({ date, name });
+          console.log(`Festivo añadido: ${date} - ${name}`);
+        }
       }
     }
     cache[year] = { timestamp: now, holidays: holidaysMataro };
@@ -268,7 +367,11 @@ function parseSpanishDate(str, year) {
   let month = months.findIndex((m) => m === match[2].toLowerCase());
   if (month === -1) return null;
   month = (month + 1).toString().padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const result = `${year}-${month}-${day}`;
+  
+
+  
+  return result;
 }
 
 function displayError(message) {
@@ -276,8 +379,17 @@ function displayError(message) {
 }
 
 function isHoliday(date, holidayList) {
-  const dateString = date.toISOString().split("T")[0];
-  return holidayList.includes(dateString);
+  // Usar fecha local en lugar de UTC para evitar problemas de zona horaria
+  const yearStr = date.getFullYear();
+  const monthStr = String(date.getMonth() + 1).padStart(2, '0');
+  const dayStr = String(date.getDate()).padStart(2, '0');
+  const dateString = `${yearStr}-${monthStr}-${dayStr}`;
+  
+  const isHoliday = holidayList.includes(dateString);
+  
+
+  
+  return isHoliday;
 }
 
 // --- Rellenar selects de horas ---
@@ -350,18 +462,36 @@ function calculateBalance() {
   let consumed = 0;
   let workdaysCount = 0;
   let offDaysCount = 0;
+
+  
   for (let day = 1; day <= daysInMonth; day++) {
     const currentDate = new Date(year, month, day);
     const dayOfWeek = currentDate.getDay();
     const isHolidayDay = isHoliday(currentDate, holidays);
+    
+      // Usar fecha local en lugar de UTC para evitar problemas de zona horaria
+  const yearStr = currentDate.getFullYear();
+  const monthStr = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const dayStr = String(currentDate.getDate()).padStart(2, '0');
+  const dateString = `${yearStr}-${monthStr}-${dayStr}`;
+  
+  const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    
     if (isHolidayDay && includeOffdays) {
       consumed += festivoHours;
       offDaysCount++;
+
     } else if (!isHolidayDay && daysConfig.hasOwnProperty(dayOfWeek)) {
       consumed += daysConfig[dayOfWeek];
       workdaysCount++;
+
     } else if (isHolidayDay && !includeOffdays) {
       offDaysCount++;
+
+    } else {
+      // Días que no son festivos y no están en la configuración (fines de semana normales)
+      offDaysCount++;
+
     }
   }
   // Calcular balance
@@ -446,6 +576,12 @@ async function initializeApp() {
   await loadMataroHolidays();
   updateHolidays();
   showLoading(false);
+  
+  // Asegurar que los campos de horas estén ocultos por defecto
+  weekdayIds.forEach(({ key }) => {
+    weekdayHoursInputs[key].style.display = 'none';
+  });
+  festivoHoursGroup.style.display = 'none';
 }
 
 calculateBtn.addEventListener("click", calculateBalance);
@@ -485,9 +621,9 @@ async function resetApp() {
   }
   // Limpiar los campos de horas (poner a vacío)
   assignedHoursInput.value = "";
-  // Checkbox activado por defecto
-  includeOffdaysToggle.checked = true;
-  includeOffdaysToggle.defaultChecked = true;
+  // Checkbox desactivado por defecto
+  includeOffdaysToggle.checked = false;
+  includeOffdaysToggle.defaultChecked = false;
   // Limpiar campos de festivos personalizados
   if (customHolidayDate) customHolidayDate.value = "";
   if (customHolidayName) customHolidayName.value = "";
@@ -496,10 +632,45 @@ async function resetApp() {
     weekdaySwitches[key].checked = false;
     weekdayHoursInputs[key].value = '';
     weekdayHoursInputs[key].style.display = 'none';
+    weekdayHoursInputs[key].classList.add('hidden');
+    weekdayHoursInputs[key].setAttribute('inert', '');
+    // Destruir SlimSelect si existe
+    if (slimSelectInstances[key]) {
+      slimSelectInstances[key].destroy();
+      slimSelectInstances[key] = null;
+    }
+    // Forzar ocultación de elementos SlimSelect
+    const slimElements = document.querySelectorAll(`#hours-${key} + .ss-main, #hours-${key} ~ .ss-main`);
+    slimElements.forEach(el => {
+      el.style.display = 'none';
+      el.style.visibility = 'hidden';
+      el.style.opacity = '0';
+      el.style.height = '0';
+      el.style.overflow = 'hidden';
+      el.setAttribute('inert', '');
+    });
   });
   // Limpiar campo de horas de festivo
   festivoHoursInput.value = '';
-  festivoHoursGroup.style.display = includeOffdaysToggle.checked ? '' : 'none';
+  festivoHoursGroup.style.display = 'none';
+  festivoHoursGroup.classList.add('hidden');
+  festivoHoursGroup.setAttribute('inert', '');
+  festivoHoursInput.setAttribute('inert', '');
+  // Destruir SlimSelect de festivo si existe
+  if (slimSelectInstances['festivo']) {
+    slimSelectInstances['festivo'].destroy();
+    slimSelectInstances['festivo'] = null;
+  }
+  // Forzar ocultación de elementos SlimSelect de festivo
+  const slimElements = festivoHoursGroup.querySelectorAll('.ss-main');
+  slimElements.forEach(el => {
+    el.style.display = 'none';
+    el.style.visibility = 'hidden';
+    el.style.opacity = '0';
+    el.style.height = '0';
+    el.style.overflow = 'hidden';
+    el.setAttribute('inert', '');
+  });
   // Recargar festivos y refrescar UI
   loadCustomHolidays();
   showLoading(true);
@@ -520,6 +691,27 @@ async function resetApp() {
 }
 
 resetBtn.addEventListener("click", resetApp);
+clearCacheBtn.addEventListener("click", async () => {
+  // Limpiar todo el localStorage relacionado con festivos
+  localStorage.removeItem(MATARO_CACHE_KEY);
+  localStorage.removeItem(LOCAL_STORAGE_KEY);
+  
+  // Limpiar arrays en memoria
+  holidaysMataro = [];
+  customHolidays = [];
+  holidays = [];
+  
+  showLoading(true);
+  await loadMataroHolidays();
+  updateHolidays();
+  showLoading(false);
+  
+  console.log("Festivos cargados:", holidaysMataro);
+  console.log("Festivos totales:", holidays);
+  
+  // Mostrar mensaje en la consola en lugar de alerta
+  console.log("✅ Caché de festivos limpiado completamente. Los festivos se han recargado desde la web de Mataró.");
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   // Horas asignadas al mes: hasta 300h
@@ -530,6 +722,18 @@ document.addEventListener('DOMContentLoaded', () => {
   ['mon','tue','wed','thu','fri','sat','sun'].forEach(key => {
     fillHourSelect(document.getElementById(`hours-${key}`), 12, 0.25);
   });
+  
+  // Asegurar que los campos estén ocultos por defecto
+  weekdayIds.forEach(({ key }) => {
+    weekdayHoursInputs[key].style.display = 'none';
+    weekdayHoursInputs[key].classList.add('hidden');
+    weekdayHoursInputs[key].setAttribute('inert', '');
+  });
+  festivoHoursGroup.style.display = 'none';
+  festivoHoursGroup.classList.add('hidden');
+  festivoHoursGroup.setAttribute('inert', '');
+  festivoHoursInput.setAttribute('inert', '');
+  
   // Inicializar la app solo después de rellenar los selects
   resetApp();
 });

@@ -66,105 +66,101 @@
           </div>
         </div>
 
-        <div class="calculation-settings">
-          <div class="input-group toggle-group">
-            <label for="includeOffdays"
-              >Contabilizar fines de semana y festivos:</label
-            >
-            <label class="switch">
-              <input type="checkbox" id="includeOffdays" checked />
-              <span class="slider round"></span>
-            </label>
+        <div class="weekdays-settings">
+          <label style="font-weight:bold; margin-bottom: 0.5rem; display:block;">Festivos:</label>
+          <div class="weekdays-list" style="width: 100%;">
+            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+              <label>Contabilizar</label>
+              <label class="switch">
+                <input type="checkbox" id="includeOffdays" />
+                <span class="slider round"></span>
+              </label>
+              <div id="festivo-hours-group" style="display: none; width: 140px; margin-top: 0.3rem;">
+                <select id="hours-festivo" class="weekday-hours">
+                  <option value="">--</option>
+                  <!-- Opciones generadas por JS -->
+                </select>
+              </div>
+            </div>
           </div>
-          <!-- NUEVO: Horas de festivo -->
-          <div class="input-group" id="festivo-hours-group" style="display:none; align-items: center; gap: 0.5rem;">
-            <label for="hours-festivo" style="min-width: 120px;">Horas en festivos:</label>
-            <select id="hours-festivo">
-              <option value="">--</option>
-              <!-- Opciones generadas por JS -->
-            </select>
-          </div>
-          <!-- NUEVO: Días de la semana -->
-          <div class="weekdays-settings">
-            <label style="font-weight:bold; margin-bottom: 0.5rem; display:block;">Días de la semana con servicio:</label>
-            <div class="weekdays-list" style="display: flex; flex-wrap: wrap; gap: 1rem;">
-              <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
-                <label>Lunes</label>
-                <label class="switch">
-                  <input type="checkbox" id="weekday-mon" />
-                  <span class="slider round"></span>
-                </label>
-                <select id="hours-mon" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 80px; margin-top: 0.3rem; display: none;" required>
-                  <option value="">--</option>
-                  <!-- Opciones generadas por JS -->
-                </select>
-              </div>
-              <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
-                <label>Martes</label>
-                <label class="switch">
-                  <input type="checkbox" id="weekday-tue" />
-                  <span class="slider round"></span>
-                </label>
-                <select id="hours-tue" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 80px; margin-top: 0.3rem; display: none;" required>
-                  <option value="">--</option>
-                  <!-- Opciones generadas por JS -->
-                </select>
-              </div>
-              <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
-                <label>Miércoles</label>
-                <label class="switch">
-                  <input type="checkbox" id="weekday-wed" />
-                  <span class="slider round"></span>
-                </label>
-                <select id="hours-wed" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 80px; margin-top: 0.3rem; display: none;" required>
-                  <option value="">--</option>
-                  <!-- Opciones generadas por JS -->
-                </select>
-              </div>
-              <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
-                <label>Jueves</label>
-                <label class="switch">
-                  <input type="checkbox" id="weekday-thu" />
-                  <span class="slider round"></span>
-                </label>
-                <select id="hours-thu" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 80px; margin-top: 0.3rem; display: none;" required>
-                  <option value="">--</option>
-                  <!-- Opciones generadas por JS -->
-                </select>
-              </div>
-              <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
-                <label>Viernes</label>
-                <label class="switch">
-                  <input type="checkbox" id="weekday-fri" />
-                  <span class="slider round"></span>
-                </label>
-                <select id="hours-fri" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 80px; margin-top: 0.3rem; display: none;" required>
-                  <option value="">--</option>
-                  <!-- Opciones generadas por JS -->
-                </select>
-              </div>
-              <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
-                <label>Sábado</label>
-                <label class="switch">
-                  <input type="checkbox" id="weekday-sat" />
-                  <span class="slider round"></span>
-                </label>
-                <select id="hours-sat" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 80px; margin-top: 0.3rem; display: none;" required>
-                  <option value="">--</option>
-                  <!-- Opciones generadas por JS -->
-                </select>
-              </div>
-              <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
-                <label>Domingo</label>
-                <label class="switch">
-                  <input type="checkbox" id="weekday-sun" />
-                  <span class="slider round"></span>
-                </label>
-                <select id="hours-sun" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 80px; margin-top: 0.3rem; display: none;" required>
-                  <option value="">--</option>
-                  <!-- Opciones generadas por JS -->
-                </select>
-              </div>
+          <label style="font-weight:bold; margin-bottom: 0.5rem; display:block;">Días de la semana con servicio:</label>
+          <div class="weekdays-list" style="width: 100%;">
+            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+              <label>Lunes</label>
+              <label class="switch">
+                <input type="checkbox" id="weekday-mon" />
+                <span class="slider round"></span>
+              </label>
+              <select id="hours-mon" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+                <option value="">--</option>
+                <!-- Opciones generadas por JS -->
+              </select>
+            </div>
+            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+              <label>Martes</label>
+              <label class="switch">
+                <input type="checkbox" id="weekday-tue" />
+                <span class="slider round"></span>
+              </label>
+              <select id="hours-tue" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+                <option value="">--</option>
+                <!-- Opciones generadas por JS -->
+              </select>
+            </div>
+            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+              <label>Miércoles</label>
+              <label class="switch">
+                <input type="checkbox" id="weekday-wed" />
+                <span class="slider round"></span>
+              </label>
+              <select id="hours-wed" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+                <option value="">--</option>
+                <!-- Opciones generadas por JS -->
+              </select>
+            </div>
+            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+              <label>Jueves</label>
+              <label class="switch">
+                <input type="checkbox" id="weekday-thu" />
+                <span class="slider round"></span>
+              </label>
+              <select id="hours-thu" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+                <option value="">--</option>
+                <!-- Opciones generadas por JS -->
+              </select>
+            </div>
+            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+              <label>Viernes</label>
+              <label class="switch">
+                <input type="checkbox" id="weekday-fri" />
+                <span class="slider round"></span>
+              </label>
+              <select id="hours-fri" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+                <option value="">--</option>
+                <!-- Opciones generadas por JS -->
+              </select>
+            </div>
+            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+              <label>Sábado</label>
+              <label class="switch">
+                <input type="checkbox" id="weekday-sat" />
+                <span class="slider round"></span>
+              </label>
+              <select id="hours-sat" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+                <option value="">--</option>
+                <!-- Opciones generadas por JS -->
+              </select>
+            </div>
+            <div class="weekday-item" style="display: flex; flex-direction: column; align-items: center; min-width: 90px;">
+              <label>Domingo</label>
+              <label class="switch">
+                <input type="checkbox" id="weekday-sun" />
+                <span class="slider round"></span>
+              </label>
+              <select id="hours-sun" class="weekday-hours" placeholder="Horas ese día" step="0.25" min="0" style="width: 140px; margin-top: 0.3rem; display: none;" required>
+                <option value="">--</option>
+                <!-- Opciones generadas por JS -->
+              </select>
             </div>
           </div>
         </div>
@@ -172,6 +168,7 @@
         <div class="main-action" style="display: flex; justify-content: center; gap: 1rem; align-items: center;">
           <button class="btn" id="calculateBtn" type="button">Calcular Balance</button>
           <button class="btn btn-secondary" id="resetBtn" type="button">Reset</button>
+          <button class="btn btn-secondary" id="clearCacheBtn" type="button">Limpiar Caché</button>
         </div>
       </form>
 
@@ -236,21 +233,13 @@
         </div>
       </div>
     </div>
-    <script src="main.js"></script>
+    <script src="main.js?v=2.0"></script>
     <script>
-      // Inicializar SlimSelect para selects modernos
+      // Inicializar SlimSelect solo para los selects principales
       document.addEventListener("DOMContentLoaded", function () {
         new SlimSelect({ select: "#year", settings: { showSearch: false } });
         new SlimSelect({ select: "#month", settings: { showSearch: false } });
         new SlimSelect({ select: "#totalHours", settings: { showSearch: false } });
-        new SlimSelect({ select: "#hours-festivo", settings: { showSearch: false } });
-        new SlimSelect({ select: "#hours-mon", settings: { showSearch: false } });
-        new SlimSelect({ select: "#hours-tue", settings: { showSearch: false } });
-        new SlimSelect({ select: "#hours-wed", settings: { showSearch: false } });
-        new SlimSelect({ select: "#hours-thu", settings: { showSearch: false } });
-        new SlimSelect({ select: "#hours-fri", settings: { showSearch: false } });
-        new SlimSelect({ select: "#hours-sat", settings: { showSearch: false } });
-        new SlimSelect({ select: "#hours-sun", settings: { showSearch: false } });
       });
     </script>
   </body>
