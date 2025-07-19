@@ -137,6 +137,24 @@ body {
     grid-template-columns: 1fr 1fr 1.5fr;
     align-items: end;
   }
+  
+  /* Desktop - Días de la semana */
+  .weekday-item {
+    grid-template-columns: 2fr auto 1fr;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    min-height: 60px;
+  }
+  
+  .weekday-item > label:first-child {
+    font-size: var(--font-size-lg);
+    padding-right: var(--spacing-md);
+  }
+  
+  .weekday-hours {
+    min-width: 140px;
+    max-width: 200px;
+  }
 }
 
 /* Grupos de selectores */
@@ -247,13 +265,15 @@ body {
   margin-bottom: var(--spacing-xl);
 }
 
+/* Mobile First - Días de la semana */
 .weekday-item {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas: 
+    "label switch select";
   align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
   background: var(--bg-primary);
   border: 2px solid var(--border-color);
   border-radius: var(--border-radius);
@@ -261,7 +281,8 @@ body {
   transition: var(--transition-fast);
   position: relative;
   overflow: hidden;
-  min-height: 60px;
+  min-height: 50px;
+  width: 100%;
   /* Optimización de rendimiento */
   will-change: transform;
   transform: translateZ(0);
@@ -284,15 +305,22 @@ body {
   border-color: var(--primary-light);
 }
 
-.weekday-item label {
+.weekday-item > label:first-child {
+  grid-area: label;
   font-weight: 700;
   color: var(--text-primary);
-  font-size: var(--font-size-lg);
-  flex: 1;
+  font-size: var(--font-size-base);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-right: var(--spacing-sm);
+}
+
+.weekday-item .switch {
+  grid-area: switch;
+  flex-shrink: 0;
+  margin: 0;
 }
 
 /* Switches personalizados optimizados */
@@ -348,8 +376,9 @@ input:checked + .slider:before {
 
 /* Selectores de horas para días */
 .weekday-hours {
-  min-width: 140px;
-  max-width: 250px;
+  grid-area: select;
+  min-width: 120px;
+  max-width: 150px;
   padding: var(--spacing-sm) var(--spacing-md);
   border: 2px solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -359,6 +388,7 @@ input:checked + .slider:before {
   transition: var(--transition-fast);
   text-align: center;
   flex-shrink: 0;
+  width: 100%;
 }
 
 .weekday-hours:focus {
@@ -812,60 +842,21 @@ input:checked + .slider:before {
   }
   
   .weekday-item {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-lg);
-    background: var(--bg-primary);
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-fast);
-    position: relative;
-    overflow: hidden;
+    grid-template-columns: 1fr auto auto;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
     width: 100%;
     margin: 0;
   }
   
-  .weekday-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    opacity: 0.6;
-  }
-  
-  .weekday-item:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary-light);
-  }
-  
-  .weekday-item label {
-    font-weight: 700;
-    color: var(--text-primary);
-    font-size: var(--font-size-lg);
-    flex: 1;
-    text-align: left;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .weekday-item .switch {
-    margin: 0 var(--spacing-md);
-    flex-shrink: 0;
+  .weekday-item > label:first-child {
+    font-size: var(--font-size-base);
+    padding-right: var(--spacing-sm);
   }
   
   .weekday-hours {
-    min-width: 140px;
-    max-width: 200px;
-    flex-shrink: 0;
-    margin: 0;
+    min-width: 120px;
+    max-width: 150px;
   }
   
   .balance-value {
@@ -897,29 +888,19 @@ input:checked + .slider:before {
   
   /* Ajustes adicionales para pantallas muy pequeñas */
   .weekday-item {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-md);
+    grid-template-columns: 1fr auto auto;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
   }
   
-  .weekday-item label {
-    text-align: left;
-    margin: 0;
-    font-size: var(--font-size-base);
-    flex: 1;
-  }
-  
-  .weekday-item .switch {
-    margin: 0 var(--spacing-sm);
-    flex-shrink: 0;
+  .weekday-item > label:first-child {
+    font-size: var(--font-size-sm);
+    padding-right: var(--spacing-xs);
   }
   
   .weekday-hours {
-    min-width: 120px;
-    max-width: 150px;
-    margin: 0;
-    flex-shrink: 0;
+    min-width: 100px;
+    max-width: 120px;
   }
 }
 
