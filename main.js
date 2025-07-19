@@ -508,11 +508,23 @@ async function initializeApp() {
       }
     }
     
-    // Cargar festivos básicos inmediatamente
-    console.log('📅 Cargando festivos básicos...');
+    // Cargar festivos de Mataró inmediatamente
+    console.log('📅 Cargando festivos de Mataró...');
     const year = parseInt(yearSelect.value);
-    holidaysMataro = getBasicHolidays(year);
-    console.log('✅ Festivos básicos cargados:', holidaysMataro.length, 'festivos');
+    
+    try {
+      const mataroHolidays = await loadMataroHolidays();
+      if (mataroHolidays && mataroHolidays.length > 0) {
+        holidaysMataro = mataroHolidays;
+        console.log('✅ Festivos de Mataró cargados:', holidaysMataro.length, 'festivos');
+      } else {
+        holidaysMataro = getBasicHolidays(year);
+        console.log('⚠️ Usando festivos básicos:', holidaysMataro.length, 'festivos');
+      }
+    } catch (error) {
+      console.log('❌ Error cargando festivos de Mataró, usando básicos:', error.message);
+      holidaysMataro = getBasicHolidays(year);
+    }
     
     // Ocultar loading inmediatamente
     showLoading(false);
@@ -521,9 +533,23 @@ async function initializeApp() {
     updateHolidays();
     
     // Event listeners para controles principales
-    yearSelect.addEventListener("change", () => {
+    yearSelect.addEventListener("change", async () => {
       const selectedYear = parseInt(yearSelect.value);
-      holidaysMataro = getBasicHolidays(selectedYear);
+      
+      try {
+        const mataroHolidays = await loadMataroHolidays();
+        if (mataroHolidays && mataroHolidays.length > 0) {
+          holidaysMataro = mataroHolidays;
+          console.log('✅ Festivos de Mataró actualizados:', holidaysMataro.length, 'festivos');
+        } else {
+          holidaysMataro = getBasicHolidays(selectedYear);
+          console.log('⚠️ Usando festivos básicos:', holidaysMataro.length, 'festivos');
+        }
+      } catch (error) {
+        console.log('❌ Error cargando festivos de Mataró, usando básicos:', error.message);
+        holidaysMataro = getBasicHolidays(selectedYear);
+      }
+      
       updateHolidays();
     });
     

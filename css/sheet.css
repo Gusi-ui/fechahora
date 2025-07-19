@@ -140,10 +140,11 @@ body {
   
   /* Desktop - Días de la semana */
   .weekday-item {
-    grid-template-columns: 2fr auto 1fr;
+    grid-template-columns: 2fr auto 1.5fr;
     gap: var(--spacing-md);
     padding: var(--spacing-lg);
     min-height: 60px;
+    margin-bottom: var(--spacing-md);
   }
   
   .weekday-item > label:first-child {
@@ -152,8 +153,13 @@ body {
   }
   
   .weekday-hours {
-    min-width: 140px;
-    max-width: 200px;
+    min-width: 160px;
+    max-width: 220px;
+  }
+  
+  .ss-main {
+    min-width: 160px !important;
+    max-width: 220px !important;
   }
 }
 
@@ -283,6 +289,7 @@ body {
   overflow: hidden;
   min-height: 50px;
   width: 100%;
+  margin-bottom: var(--spacing-sm);
   /* Optimización de rendimiento */
   will-change: transform;
   transform: translateZ(0);
@@ -377,8 +384,8 @@ input:checked + .slider:before {
 /* Selectores de horas para días */
 .weekday-hours {
   grid-area: select;
-  min-width: 120px;
-  max-width: 150px;
+  min-width: 140px;
+  max-width: 180px;
   padding: var(--spacing-sm) var(--spacing-md);
   border: 2px solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -921,7 +928,7 @@ input:checked + .slider:before {
 /* Estilos específicos para selects de horas */
 .weekday-hours {
   min-width: 140px;
-  max-width: 250px;
+  max-width: 180px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -931,7 +938,7 @@ input:checked + .slider:before {
 /* Mejoras para SlimSelect en selects de horas */
 .ss-main {
   min-width: 140px !important;
-  max-width: 250px !important;
+  max-width: 180px !important;
   flex-shrink: 0 !important;
 }
 

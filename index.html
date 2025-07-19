@@ -10,7 +10,7 @@
     
     <!-- Preload recursos críticos -->
     <link rel="preload" href="css/sheet.css" as="style" />
-    <link rel="preload" href="main.js?v=3.7" as="script" />
+    <link rel="preload" href="main.js?v=3.8" as="script" />
     
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slim-select@2.8.0/dist/slimselect.min.css" />
     
     <!-- Script principal -->
-    <script src="main.js?v=3.7"></script>
+    <script src="main.js?v=3.8"></script>
   </head>
   <body>
     <div class="container">
@@ -205,12 +205,6 @@
 
       <!-- Resultados -->
       <div id="results-container" class="results-container" style="display: none">
-        <div class="summary-card">
-          <h2>📊 Balance del Mes</h2>
-          <p class="balance-value" id="balanceValue">0.00 horas</p>
-          <p class="balance-text" id="balanceText">--</p>
-        </div>
-        
         <div class="details-grid">
           <div class="detail-card">
             <h3 id="totalMonthHoursTitle">
@@ -233,6 +227,11 @@
           <div class="detail-card">
             <h3>🎉 Fines de semana / Festivos</h3>
             <p id="offDays">--</p>
+          </div>
+          
+          <div class="detail-card">
+            <h3>📊 Balance del Mes</h3>
+            <p id="balanceValue">0.00 horas</p>
           </div>
         </div>
       </div>
