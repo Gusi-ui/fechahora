@@ -350,6 +350,7 @@ async function loadMataroHolidays() {
   const year = parseInt(yearSelect.value);
   console.log("Cargando festivos para año:", year);
   
+  // Verificar caché primero
   let cache = localStorage.getItem(MATARO_CACHE_KEY);
   if (cache) {
     try {
@@ -360,6 +361,7 @@ async function loadMataroHolidays() {
   } else {
     cache = {};
   }
+  
   const now = Date.now();
   if (cache[year] && now - cache[year].timestamp < MATARO_CACHE_TTL) {
     holidaysMataro = cache[year].holidays;
@@ -368,55 +370,156 @@ async function loadMataroHolidays() {
   }
   
   try {
+    console.log("Intentando cargar festivos desde:", MATARO_HOLIDAYS_URL);
+    
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      console.log("Timeout alcanzado, abortando request");
+    }, 8000); // 8 segundos timeout
     
     const response = await fetch(MATARO_HOLIDAYS_URL, {
-      signal: controller.signal
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; CalculadoraFestivos/1.0)'
+      }
     });
+    
     clearTimeout(timeoutId);
     
-    if (!response.ok) throw new Error("Error de red");
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+    
     const html = await response.text();
+    console.log("HTML recibido, longitud:", html.length);
+    
+    // Verificar que el HTML contiene contenido útil
+    if (html.length < 1000) {
+      throw new Error("Respuesta HTML demasiado corta");
+    }
+    
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
+    
+    // Buscar tabla de festivos
     let table = null;
     const headers = Array.from(doc.querySelectorAll("h1, h2, h3, h4, h5, h6"));
+    console.log("Encontrados", headers.length, "headers");
+    
     for (const h of headers) {
-      if (h.textContent.includes(year)) {
+      if (h.textContent.includes(year.toString())) {
+        console.log("Encontrado header para año", year, ":", h.textContent);
         let el = h.nextElementSibling;
-        while (el && el.tagName !== "TABLE") el = el.nextElementSibling;
+        while (el && el.tagName !== "TABLE") {
+          el = el.nextElementSibling;
+        }
         if (el && el.tagName === "TABLE") {
           table = el;
+          console.log("Encontrada tabla de festivos");
           break;
         }
       }
     }
-    if (!table) return;
-    const rows = Array.from(table.querySelectorAll("tbody tr"));
-    for (const row of rows) {
-      const cells = row.querySelectorAll("td");
-      if (cells.length >= 1) {
-        const rawDate = cells[0].textContent.trim();
-        const name = cells[1] ? cells[1].textContent.trim() : "Mataró";
-        const date = parseSpanishDate(rawDate, year);
-        console.log(`Procesando festivo: "${rawDate}" -> "${name}" -> ${date}`);
-        if (date) {
-          holidaysMataro.push({ date, name });
-          console.log(`Festivo añadido: ${date} - ${name}`);
+    
+    if (!table) {
+      console.log("No se encontró tabla de festivos, usando festivos básicos");
+      // Usar festivos básicos si no se encuentra la tabla
+      holidaysMataro = getBasicHolidays(year);
+    } else {
+      const rows = Array.from(table.querySelectorAll("tbody tr"));
+      console.log("Encontradas", rows.length, "filas en la tabla");
+      
+      for (const row of rows) {
+        const cells = row.querySelectorAll("td");
+        if (cells.length >= 1) {
+          const rawDate = cells[0].textContent.trim();
+          const name = cells[1] ? cells[1].textContent.trim() : "Mataró";
+          const date = parseSpanishDate(rawDate, year);
+          console.log(`Procesando festivo: "${rawDate}" -> "${name}" -> ${date}`);
+          if (date) {
+            holidaysMataro.push({ date, name });
+            console.log(`Festivo añadido: ${date} - ${name}`);
+          }
         }
       }
     }
+    
+    // Guardar en caché
     cache[year] = { timestamp: now, holidays: holidaysMataro };
     localStorage.setItem(MATARO_CACHE_KEY, JSON.stringify(cache));
+    
+    console.log("Festivos cargados exitosamente:", holidaysMataro.length, "festivos");
+    
   } catch (error) {
+    console.error("Error cargando festivos de Mataró:", error);
     holidaysMataro = [];
+    
+    // Usar festivos básicos como fallback
+    holidaysMataro = getBasicHolidays(year);
+    console.log("Usando festivos básicos como fallback:", holidaysMataro);
+    
     if (error.name === 'AbortError') {
-      displayError("Timeout al cargar festivos de Mataró. Inténtalo de nuevo.");
+      displayError("Timeout al cargar festivos de Mataró. Usando festivos básicos.");
     } else {
-      displayError("No se pudieron cargar los festivos de Mataró.");
+      displayError("No se pudieron cargar los festivos de Mataró. Usando festivos básicos.");
     }
   }
+}
+
+// Función para obtener festivos básicos como fallback
+function getBasicHolidays(year) {
+  const basicHolidays = [
+    { date: `${year}-01-01`, name: "Año Nuevo" },
+    { date: `${year}-01-06`, name: "Epifanía" },
+    { date: `${year}-05-01`, name: "Día del Trabajo" },
+    { date: `${year}-08-15`, name: "Asunción" },
+    { date: `${year}-10-12`, name: "Día de la Hispanidad" },
+    { date: `${year}-11-01`, name: "Todos los Santos" },
+    { date: `${year}-12-06`, name: "Día de la Constitución" },
+    { date: `${year}-12-08`, name: "Inmaculada Concepción" },
+    { date: `${year}-12-25`, name: "Navidad" }
+  ];
+  
+  // Añadir festivos móviles (aproximación)
+  const easter = getEasterDate(year);
+  const easterMonday = new Date(easter);
+  easterMonday.setDate(easter.getDate() + 1);
+  
+  basicHolidays.push(
+    { date: formatDate(easter), name: "Jueves Santo" },
+    { date: formatDate(easterMonday), name: "Lunes de Pascua" }
+  );
+  
+  return basicHolidays;
+}
+
+// Función para calcular la fecha de Pascua (algoritmo de Meeus/Jones/Butcher)
+function getEasterDate(year) {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  
+  return new Date(year, month - 1, day);
+}
+
+// Función para formatear fecha como YYYY-MM-DD
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function parseSpanishDate(str, year) {
